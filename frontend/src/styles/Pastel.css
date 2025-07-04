@@ -1,0 +1,42 @@
+.pastel-title {
+  color: #444;
+  font-weight: 600;
+}
+
+.pastel-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  color: #333;
+}
+
+.pastel-btn {
+  border: none;
+  border-radius: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.pastel-blue {
+  background-color: #d0e8f2;
+}
+
+.pastel-green {
+  background-color: #d2f0d6;
+}
+
+.pastel-yellow {
+  background-color: #fff6c3;
+}
+
+.pastel-pink {
+  background-color: #fcd6d9;
+}
+
+.pastel-cyan {
+  background-color: #d0f0f6;
+}
+
+.pastel-gray {
+  background-color: #e6e6e6;
+}

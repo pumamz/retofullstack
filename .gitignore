@@ -1,0 +1,27 @@
+# Backend (Maven)
+backend/target/
+backend/.idea/
+backend/*.iml
+backend/.mvn/
+
+# Frontend (Node)
+frontend/node_modules/
+frontend/.env
+frontend/.next/
+frontend/dist/
+frontend/build/
+
+# General
+*.log
+*.jfr
+hs_err_pid*
+*.tar
+*.zip
+*.swp
+.DS_Store
+*.class
+
+# IDEs
+.idea/
+*.iml
+.vscode/
