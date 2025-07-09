@@ -39,16 +39,16 @@ services:
       - reto-net
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: retofullstack-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    networks:
-      - reto-net
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+  container_name: retofullstack-frontend
+  ports:
+    - "3000:80"
+  depends_on:
+    - backend
+  networks:
+    - reto-net
 
 volumes:
   mysql-data:
