@@ -1,24 +1,11 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/api/productos';
+import api from '../api/axios';
 
 export const ProductoService = {
-    listarProductos: async () => {
-        return await axios.get(API_URL);
-    },
-
-    obtenerProducto: async (id) => {
-        return await axios.get(`${API_URL}/${id}`);
-    },
-
-    guardarProducto: async (producto) => {
-        if (producto.id) {
-            return await axios.put(`${API_URL}/${producto.id}`, producto);
-        }
-        return await axios.post(API_URL, producto);
-    },
-
-    eliminarProducto: async (id) => {
-        return await axios.delete(`${API_URL}/${id}`);
-    }
+    listarProductos: () => api.get('/productos'),
+    obtenerProducto: (id) => api.get(`/productos/${id}`),
+    obtenerProductosBarraCodigo: (barcode) => api.get(`/productos/barcode/${barcode}`),
+    obtenerProductosStockBajo: () => api.get(`/productos/low-stock`),
+    crearProducto: (producto) => api.post(`/productos`, producto),
+    actualizarProducto: (id, producto) => api.put(`/productos/${id}`, producto),
+    eliminarProducto: (id) => api.delete(`/productos/${id}`)
 };

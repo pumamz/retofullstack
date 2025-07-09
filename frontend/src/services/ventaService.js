@@ -1,17 +1,32 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8080/api/ventas';
+import api from '../api/axios';
 
 export const VentaService = {
     obtenerDatosVenta: async () => {
-        return await axios.get(`${API_URL}/data`);
+        return await api.get(`/ventas/data`);
     },
 
-    registrarVenta: async (venta) => {
-        return await axios.post(API_URL, venta);
+    crearVenta: async (venta) => {
+        return await api.post(`/ventas`, venta);
     },
 
     listarVentas: async () => {
-        return await axios.get(API_URL);
+        return await api.get(`/ventas`);
+    },
+
+    obtenerVentaPorNumero: async (numeroVenta) => {
+        return await api.get(`/ventas/${numeroVenta}`);
+    },
+
+    cancelarVenta: async (ventaId) => {
+        return await api.post(`/ventas/${ventaId}/cancel`);
+    },
+    obtenerVentasPorFecha: async (fechaInicio, fechaFin) => {
+        return await api.get('/ventas/date-range', {
+    params: {
+      start: fechaInicio,
+      end: fechaFin
     }
+        });
+    }
+
 };

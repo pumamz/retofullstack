@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByActiveTrue();
     Optional<Product> findByIdAndActiveTrue(Long id);
+    Optional<Product> findByBarcode(String barcode);
+    List<Product> findByStockLessThanAndActiveTrue(int minimumStock);
 }

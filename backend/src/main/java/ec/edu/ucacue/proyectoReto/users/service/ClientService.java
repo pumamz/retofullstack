@@ -5,9 +5,19 @@ import ec.edu.ucacue.proyectoReto.users.model.Client;
 import java.util.List;
 
 public interface ClientService {
-  public List<Client> listClient();
-  public Client findClientById(Long id);
-public  void    createClient(Client client);
-public void deleteClientById(Long id);
-public void editClient(Client client);
+    List<Client> listClient();
+
+    Client findClientById(Long id);
+
+    void createClient(Client client);
+
+    void deleteClientById(Long id);
+
+    void editClient(Client client);
+
+    List<Client> searchClients(String name, String dni);
+
+    void toggleEnabled(Long id, boolean enabled);
+
+    List<Client> findByEnabled(boolean enabled);
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
 import { PedidoService } from '../../services/pedidoService';
 
 const NuevoPedido = () => {
@@ -8,8 +9,12 @@ const NuevoPedido = () => {
     const [productos, setProductos] = useState([]);
     const [pedido, setPedido] = useState({
         supplier: { id: '' },
-        details: []
+        details: [],
+        notes: '',
+        expectedDeliveryDate: new Date(),
+        status: 'PENDIENTE'
     });
+
     const [productoSeleccionado, setProductoSeleccionado] = useState({
         product: { id: '' },
         quantity: 1,
@@ -35,6 +40,13 @@ const NuevoPedido = () => {
         } finally {
             setCargando(false);
         }
+    };
+
+    const handleNotesChange = (e) => {
+        setPedido(prev => ({
+            ...prev,
+            notes: e.target.value
+        }));
     };
 
     const handleProveedorChange = (e) => {
@@ -88,16 +100,37 @@ const NuevoPedido = () => {
         }));
     };
 
+    const handleDeliveryDateChange = (e) => {
+        setPedido(prev => ({
+            ...prev,
+            expectedDeliveryDate: e.target.value
+        }));
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (pedido.details.length === 0) {
+            toast.error('Debe agregar al menos un producto al pedido');
+            return;
+        }
+
         try {
-            await PedidoService.registrarPedido(pedido);
+            const pedidoData = {
+                ...pedido,
+                totalAmount: pedido.details.reduce(
+                    (total, detail) => total + (detail.quantity * detail.unitPrice), 0
+                )
+            };
+            await PedidoService.crearPedido(pedidoData);
+            toast.success('Pedido creado exitosamente');
             navigate('/productos/pedidos');
         } catch (error) {
             console.error('Error al registrar pedido:', error);
-            setError('Error al registrar el pedido');
+            toast.error('Error al registrar el pedido');
         }
     };
+
 
     if (cargando) {
         return (
@@ -117,6 +150,29 @@ const NuevoPedido = () => {
                     {error}
                 </div>
             )}
+
+            <div className="row mb-3">
+                <div className="col-md-6">
+                    <label className="form-label">Fecha de Entrega Esperada</label>
+                    <input
+                        type="date"
+                        className="form-control"
+                        value={pedido.expectedDeliveryDate}
+                        onChange={handleDeliveryDateChange}
+                    />
+                </div>
+                <div className="col-md-6">
+                    <label className="form-label">Notas</label>
+                    <textarea
+                        className="form-control"
+                        value={pedido.notes}
+                        onChange={handleNotesChange}
+                        rows="3"
+                        placeholder="Notas adicionales para el pedido..."
+                    />
+                </div>
+            </div>
+
 
             <form onSubmit={handleSubmit}>
                 <div className="row">
@@ -246,7 +302,7 @@ const NuevoPedido = () => {
                     <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={() => navigate('/pedidos')}
+                        onClick={() => navigate('/productos/pedidos')}
                     >
                         Cancelar
                     </button>

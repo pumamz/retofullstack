@@ -1,17 +1,34 @@
-import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/pedidos';
+import axios from '../api/axios';
 
 export const PedidoService = {
-    obtenerDatosPedido: async () => {
-        return await axios.get(`${API_URL}/data`);
+    obtenerDatosPedido: () => {
+        return axios.get('/pedidos/data');
     },
 
-    registrarPedido: async (pedido) => {
-        return await axios.post(API_URL, pedido);
+    crearPedido: (pedido) => {
+        return axios.post('/pedidos', {
+            ...pedido,
+            status: 'PENDIENTE',
+            totalAmount: pedido.details.reduce(
+                (total, detail) => total + (detail.quantity * detail.unitPrice), 0
+            )
+        });
     },
 
-    listarPedidos: async () => {
-        return await axios.get(API_URL);
+    listarPedidos: () => {
+        return axios.get('/pedidos');
+    },
+
+    obtenerPedidoPorNumero: (numeroPedido) => {
+        return axios.get(`/pedidos/${numeroPedido}`);
+    },
+
+    actualizarEstadoPedido: (pedidoId, estado) => {
+        return axios.put(`/pedidos/${pedidoId}/status?status=${estado}`);
+    },
+
+    recibirPedido: (orderId, cantidades) => {
+        return axios.put(`/pedidos/${orderId}/receive`, cantidades);
     }
 };

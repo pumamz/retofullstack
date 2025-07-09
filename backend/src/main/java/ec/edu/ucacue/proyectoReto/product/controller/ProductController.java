@@ -2,15 +2,15 @@ package ec.edu.ucacue.proyectoReto.product.controller;
 
 import ec.edu.ucacue.proyectoReto.product.model.Product;
 import ec.edu.ucacue.proyectoReto.product.service.ProductService;
-import org.springframework.http.HttpStatus;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ProductController {
-
     private final ProductService productService;
 
     public ProductController(ProductService productService) {
@@ -18,13 +18,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<?> listAllProducts() {
+    public ResponseEntity<List<Product>> listAllProducts() {
         return ResponseEntity.ok(productService.listProducts());
-    }
-
-    @PostMapping
-    public ResponseEntity<Product> saveProduct(@RequestBody Product product) {
-        return ResponseEntity.ok(productService.saveProduct(product));
     }
 
     @GetMapping("/{id}")
@@ -32,23 +27,40 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        product.setId(id);
+    @GetMapping("/barcode/{barcode}")
+    public ResponseEntity<Product> getProductByBarcode(@PathVariable String barcode) {
+        return ResponseEntity.ok(productService.findByBarcode(barcode));
+    }
+
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<Product>> getLowStockProducts() {
+        return ResponseEntity.ok(productService.findLowStockProducts());
+    }
+
+    @PostMapping
+    public ResponseEntity<Product> saveProduct(@Valid @RequestBody Product product) {
         return ResponseEntity.ok(productService.saveProduct(product));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long id) {
-        try {
-            productService.deactivateProduct(id);
-            return ResponseEntity.ok()
-                    .body("Producto desactivado correctamente");
-        } catch (Exception e) {
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error al desactivar el producto: " + e.getMessage());
-        }
+    @PutMapping("/{id}")
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @Valid @RequestBody Product product) {
+        Product existingProduct = productService.getProductById(id);
 
+        existingProduct.setName(product.getName());
+        existingProduct.setDescription(product.getDescription());
+        existingProduct.setPriceBuy(product.getPriceBuy());
+        existingProduct.setPriceSale(product.getPriceSale());
+        existingProduct.setStock(product.getStock());
+        existingProduct.setMinimumStock(product.getMinimumStock());
+        existingProduct.setBarcode(product.getBarcode());
+
+        return ResponseEntity.ok(productService.saveProduct(existingProduct));
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+        productService.deactivateProduct(id);
+        return ResponseEntity.noContent().build();
     }
 }

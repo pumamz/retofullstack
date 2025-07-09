@@ -6,6 +6,8 @@ import toast from 'react-hot-toast';
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [nombre, setNombre] = useState('');
+    const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -13,9 +15,9 @@ const Register = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            await authService.register(username, password);
+            await authService.register(username, password, email, nombre);
             toast.success('¡Registro exitoso!');
-            navigate('/login');
+            navigate('/');
         } catch (error) {
             toast.error(error.response?.data?.error || 'Error en el registro');
         } finally {
@@ -28,6 +30,30 @@ const Register = () => {
             <div className="card shadow p-4" style={{ maxWidth: '400px', width: '100%' }}>
                 <h2 className="text-center mb-4">Crear cuenta</h2>
                 <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                        <label htmlFor="nombre" className="form-label">Nombre</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="nombre"
+                            value={nombre}
+                            onChange={(e) => setNombre(e.target.value)}
+                            required
+                            autoFocus
+                        />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="email" className="form-label">Email</label>
+                        <input
+                            type="text"
+                            className="form-control"
+                            id="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            autoFocus
+                        />
+                    </div>
                     <div className="mb-3">
                         <label htmlFor="username" className="form-label">Usuario</label>
                         <input

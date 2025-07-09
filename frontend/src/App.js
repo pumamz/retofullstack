@@ -14,19 +14,20 @@ import NuevaVenta from "./pages/productos/NuevaVenta";
 import ListaPedidos from "./pages/productos/ListaPedidos";
 import NuevoPedido from "./pages/productos/NuevoPedido";
 import Profile from "./pages/dashboard/Profile";
-import ListaMembresias from "./pages/membresias/ListaMembresias";
-import FormularioMembresias from "./pages/membresias/FormularioMembresias";
-import VentasClases from "./pages/membresias/VentasClases";
-import VenderClase from "./pages/membresias/VenderClase";
-import VentasMembresias from "./pages/membresias/VentasMembresias";
-import VenderMembresias from "./pages/membresias/VenderMembresias";
+import ListaMembresia from "./pages/membresias/ListaMembresia";
+import NuevaMembresia from "./pages/membresias/NuevaMembresia";
+import EditarMembresia from "./pages/membresias/EditarMembresia";
+import ListaVentasMembresias from "./pages/membresias/ListaVentasMembresias";
+import NuevaVentaMembresia from "./pages/membresias/NuevaVentaMembresia";
+import ListaClasesPersonalizadas from "./pages/membresias/ListaClasesPersonalizadas";
+import NuevaClasePersonalizada from "./pages/membresias/NuevaClasePersonalizada";
+import EditarClasePersonalizada from "./pages/membresias/EditarClasePersonalizada";
 import ListaClientes from "./pages/usuarios/ListaClientes";
-import CrearCliente from "./pages/usuarios/FormularioClientes";
-import EditarCliente from "./pages/usuarios/FormularioClientes";
 import ListaProveedores from "./pages/usuarios/ListaProveedores";
 import CrearProveedor from "./pages/usuarios/FormularioProveedores";
 import EditarProveedor from "./pages/usuarios/FormularioProveedores";
 import Reportes from "./pages/reportes/Reportes";
+import FormularioClientes from "./pages/usuarios/FormularioClientes";
 
 function App() {
     return (
@@ -54,17 +55,19 @@ function App() {
                         <Route path="productos/ventas/vender" element={<NuevaVenta />} />
                         <Route path="productos/pedidos" element={<ListaPedidos />} />
                         <Route path="productos/pedidos/pedir" element={<NuevoPedido />} />
-                        <Route path="membresias" element={<ListaMembresias />} />
-                        <Route path="membresias/crear" element={<FormularioMembresias />} />
-                        <Route path="membresias/clases" element={<VentasClases />} />
-                        <Route path="membresias/clases/vender" element={<VenderClase />} />
-                        <Route path="membresias/ventas" element={<VentasMembresias />} />
-                        <Route path="membresias/ventas/vender" element={<VenderMembresias />} />
+                        <Route path="membresias" element={<ListaMembresia />} />
+                        <Route path="membresias/crear" element={<NuevaMembresia />} />
+                        <Route path="membresias/editar/:id" element={<EditarMembresia />} />
+                        <Route path="membresias/clases" element={<ListaClasesPersonalizadas />} />
+                        <Route path="membresias/clases/crear" element={<NuevaClasePersonalizada />} />
+                        <Route path="membresias/clases/editar/:id" element={<EditarClasePersonalizada />} />
+                        <Route path="membresias/ventas/lista" element={<ListaVentasMembresias />} />
+                        <Route path="membresias/ventas/nueva" element={<NuevaVentaMembresia />} />
                         <Route path="clientes" element={<ListaClientes />} />
-                        <Route path="clientes/nuevo" element={<CrearCliente />} />
-                        <Route path="clientes/editar/:id" element={<EditarCliente />} />
+                        <Route path="clientes/crear" element={<FormularioClientes />} />
+                        <Route path="clientes/editar/:id" element={<FormularioClientes />} />
                         <Route path="proveedores" element={<ListaProveedores />} />
-                        <Route path="proveedores/nuevo" element={<CrearProveedor />} />
+                        <Route path="proveedores/crear" element={<CrearProveedor />} />
                         <Route path="proveedores/editar/:id" element={<EditarProveedor />} />
                         <Route path="reportes" element={<Reportes />} />
                     </Route>

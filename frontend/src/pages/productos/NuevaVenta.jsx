@@ -9,7 +9,10 @@ const NuevaVenta = () => {
     const [venta, setVenta] = useState({
         client: { id: '' },
         details: [],
+        paymentMethod: '',
+        notes: '',
     });
+
     const [productoSeleccionado, setProductoSeleccionado] = useState({
         product: { id: '' },
         quantity: 1,
@@ -91,13 +94,22 @@ const NuevaVenta = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await VentaService.registrarVenta(venta);
+            await VentaService.crearVenta(venta);
             navigate("/productos/ventas");
         } catch (error) {
             console.error("Error al registrar venta:", error);
             alert("Error al registrar la venta");
         }
     };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setVenta(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
 
     if (cargando) {
         return (
@@ -138,6 +150,34 @@ const NuevaVenta = () => {
                     </div>
                 </div>
 
+                <div className="row mb-3">
+                    <div className="col-md-6">
+                        <label className="form-label">Método de Pago</label>
+                        <select
+                            className="form-select"
+                            name="paymentMethod"
+                            value={venta.paymentMethod}
+                            onChange={handleInputChange}
+                            required
+                        >
+                            <option value="">Seleccione método de pago</option>
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="TARJETA">Tarjeta</option>
+                            <option value="TRANSFERENCIA">Transferencia</option>
+                        </select>
+                    </div>
+                    <div className="col-md-6">
+                        <label className="form-label">Notas</label>
+                        <textarea
+                            className="form-control"
+                            name="notes"
+                            value={venta.notes}
+                            onChange={handleInputChange}
+                            placeholder="Notas adicionales"
+                            rows="2"
+                        ></textarea>
+                    </div>
+                </div>
                 <div className="card mb-3">
                     <div className="card-body">
                         <h5 className="card-title">Agregar Productos</h5>
@@ -188,6 +228,31 @@ const NuevaVenta = () => {
                                 </button>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className="card mb-3">
+                    <div className="card-body">
+                        <h5 className="card-title">Resumen de la Venta</h5>
+                        <div className="row">
+                            <div className="col-md-6">
+                                <p><strong>Cliente:</strong> {clientes.find(c => c.id === Number(venta.client.id))?.firstName || 'No seleccionado'}</p>
+                                <p><strong>Método de Pago:</strong> {venta.paymentMethod || 'No seleccionado'}</p>
+                            </div>
+                            <div className="col-md-6">
+                                <p><strong>Total Items:</strong> {venta.details.length}</p>
+                                <p><strong>Total a Pagar:</strong> ${venta.details.reduce((total, detalle) =>
+                                    total + (detalle.quantity * detalle.unitPrice), 0
+                                ).toFixed(2)}</p>
+                            </div>
+                        </div>
+                        {venta.notes && (
+                            <div className="row mt-2">
+                                <div className="col-12">
+                                    <p><strong>Notas:</strong> {venta.notes}</p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -246,14 +311,14 @@ const NuevaVenta = () => {
                     <button
                         type="button"
                         className="btn btn-secondary"
-                        onClick={() => navigate("/ventas")}
+                        onClick={() => navigate("/productos/ventas")}
                     >
                         Cancelar
                     </button>
                     <button
                         type="submit"
                         className="btn btn-success"
-                        disabled={venta.details.length === 0}
+                        disabled={venta.details.length === 0 || !venta.client.id || !venta.paymentMethod}
                     >
                         Registrar Venta
                     </button>

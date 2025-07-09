@@ -1,12 +1,8 @@
-import axiosInstance from './axiosConfig';
+import api from '../api/axios';
 
 const authService = {
   login: async (username, password) => {
-    const response = await axiosInstance.post('/auth/login', {
-      username,
-      password
-    });
-
+    const response = await api.post('/auth/login', { username, password });
     const userData = response.data;
 
     if (userData.token) {
@@ -25,14 +21,8 @@ const authService = {
     throw new Error('No se recibió token');
   },
 
-  register: async (username, password, email, firstName, role) => {
-    return axiosInstance.post('/auth/register', {
-      username,
-      password,
-      email,
-      firstName,
-      role
-    });
+  register: async (username, password, email, firstName) => {
+    return api.post('/auth/register', { username, password, email, firstName });
   },
 
   logout: () => {

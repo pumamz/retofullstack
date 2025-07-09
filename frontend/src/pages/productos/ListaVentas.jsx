@@ -2,39 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { VentaService } from '../../services/ventaService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSearch, faTimes, faFileInvoice } from '@fortawesome/free-solid-svg-icons';
+import { toast } from 'react-hot-toast';
 
 const ListaVentas = () => {
     const [ventas, setVentas] = useState([]);
     const [ventaSeleccionada, setVentaSeleccionada] = useState(null);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState(null);
+    const [fechaInicio, setFechaInicio] = useState(new Date());
+    const [fechaFin, setFechaFin] = useState(new Date());
 
     useEffect(() => {
         cargarVentas();
-        const modalElement = document.getElementById('detalleVentaModal');
-        if (modalElement) {
-            modalElement.addEventListener('hidden.bs.modal', limpiarModal);
-        }
-
-        return () => {
-            const modalElement = document.getElementById('detallePedidoModal');
-            if (modalElement) {
-                modalElement.removeEventListener('hidden.bs.modal', limpiarModal);
-            }
-            limpiarModal();
-        };
     }, []);
-
-    const limpiarModal = () => {
-        const backdrop = document.querySelector('.modal-backdrop');
-        if (backdrop) {
-            backdrop.remove();
-        }
-        document.body.classList.remove('modal-open');
-        document.body.style.paddingRight = '';
-        document.body.style.overflow = '';
-    };
 
     const cargarVentas = async () => {
         try {
@@ -44,13 +25,51 @@ const ListaVentas = () => {
         } catch (error) {
             console.error('Error al cargar ventas:', error);
             setError('Error al cargar las ventas');
+            toast.error('Error al cargar las ventas');
         } finally {
             setCargando(false);
         }
     };
 
-    const mostrarDetalles = (venta) => {
-        setVentaSeleccionada(venta);
+    const buscarPorRangoFecha = async () => {
+        try {
+            setCargando(true);
+            const fechaInicioStr = fechaInicio.toISOString().split('T')[0];
+            const fechaFinStr = fechaFin.toISOString().split('T')[0];
+
+            const response = await VentaService.obtenerVentasPorFecha(fechaInicioStr, fechaFinStr);
+            setVentas(response.data);
+            toast.success('Búsqueda completada');
+        } catch (error) {
+            console.error('Error en la búsqueda:', error);
+            toast.error('Error al buscar ventas');
+        } finally {
+            setCargando(false);
+        }
+    };
+
+    const cancelarVenta = async (id) => {
+        if (window.confirm('¿Está seguro de cancelar esta venta?')) {
+            try {
+                await VentaService.cancelarVenta(id);
+                toast.success('Venta cancelada exitosamente');
+                cargarVentas();
+            } catch (error) {
+                console.error('Error al cancelar la venta:', error);
+                toast.error('Error al cancelar la venta');
+            }
+        }
+    };
+
+    const mostrarDetalles = async (invoiceNumber) => {
+        try {
+            const response = await VentaService.obtenerVentaPorNumero(invoiceNumber);
+            setVentaSeleccionada(response.data);
+            // Aquí podrías mostrar un modal con los detalles
+        } catch (error) {
+            console.error('Error al obtener detalles:', error);
+            toast.error('Error al cargar los detalles');
+        }
     };
 
     if (cargando) {
@@ -67,10 +86,44 @@ const ListaVentas = () => {
         <div className="container mt-4">
             <div className="d-flex justify-content-between mb-3">
                 <h2>Lista de Ventas</h2>
-                <Link to="/productos/ventas/vender" className="btn btn-success d-flex align-items-center justify-content-center">
+                <Link to="/productos/ventas/vender" className="btn btn-success">
                     <FontAwesomeIcon icon={faPlus} className="me-2" />
-                    Nueva venta
+                    Nueva Venta
                 </Link>
+            </div>
+
+            <div className="card mb-4">
+                <div className="card-body">
+                    <h5 className="card-title">Filtrar por Fecha</h5>
+                    <div className="row g-3">
+                        <div className="col-md-4">
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={fechaInicio.toISOString().split('T')[0]}
+                                onChange={(e) => setFechaInicio(new Date(e.target.value))}
+                            />
+
+                        </div>
+                        <div className="col-md-4">
+                            <input
+                                type="date"
+                                className="form-control"
+                                value={fechaFin.toISOString().split('T')[0]}
+                                onChange={(e) => setFechaFin(new Date(e.target.value))}
+                            />
+                        </div>
+                        <div className="col-md-4">
+                            <button
+                                className="btn btn-primary"
+                                onClick={buscarPorRangoFecha}
+                            >
+                                <FontAwesomeIcon icon={faSearch} className="me-2" />
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {error && (
@@ -83,33 +136,41 @@ const ListaVentas = () => {
                 <table className="table table-striped">
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Nº Factura</th>
                             <th>Fecha</th>
                             <th>Cliente</th>
                             <th>Total</th>
-                            <th>Detalles</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {ventas.map(venta => (
-                            <tr key={venta.id}>
-                                <td>{venta.id}</td>
-                                <td>{venta.date}</td>
-                                <td>{venta.client?.firstName}</td>
+                            <tr key={venta.id} className={venta.cancelled ? 'table-danger' : ''}>
+                                <td>{venta.invoiceNumber}</td>
+                                <td>{venta.dateTime}</td>
+                                <td>{venta.client.firstName}</td>
+                                <td>${venta.totalAmount.toFixed(2)}</td>
                                 <td>
-                                    ${venta.details.reduce((total, detalle) =>
-                                        total + (detalle.quantity * detalle.unitPrice), 0
-                                    ).toFixed(2)}
+                                    <span className={`badge ${venta.cancelled ? 'bg-danger' : 'bg-success'}`}>
+                                        {venta.cancelled ? 'Cancelada' : 'Activa'}
+                                    </span>
                                 </td>
                                 <td>
                                     <button
-                                        className="btn btn-success btn-sm"
-                                        onClick={() => mostrarDetalles(venta)}
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#detallePedidoModal"
+                                        className="btn btn-info btn-sm me-2"
+                                        onClick={() => mostrarDetalles(venta.invoiceNumber)}
                                     >
-                                        Ver Detalles
+                                        <FontAwesomeIcon icon={faFileInvoice} />
                                     </button>
+                                    {!venta.cancelled && (
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => cancelarVenta(venta.id)}
+                                        >
+                                            <FontAwesomeIcon icon={faTimes} />
+                                        </button>
+                                    )}
                                 </td>
                             </tr>
                         ))}
@@ -117,78 +178,56 @@ const ListaVentas = () => {
                 </table>
             </div>
 
-            {/* Modal */}
-            <div className="modal fade"
-                id="detallePedidoModal"
-                tabIndex="-1"
-                aria-labelledby="modalLabel"
-                aria-hidden="true"
-                data-bs-backdrop="static"
-            >
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="modalLabel">
-                                Detalles de la venta {ventaSeleccionada?.id}
-                            </h5>
-                            <button
-                                type="button"
-                                className="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close"
-                                onClick={limpiarModal}
-                            ></button>
-                        </div>
-                        <div className="modal-body">
-                            {ventaSeleccionada && (
-                                <table className="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Producto</th>
-                                            <th>Cantidad</th>
-                                            <th>Precio</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {ventaSeleccionada.details.map((detalle, index) => (
-                                            <tr key={index}>
-                                                <td>{detalle.product.name}</td>
-                                                <td>{detalle.quantity}</td>
-                                                <td>${detalle.unitPrice}</td>
-                                                <td>${(detalle.quantity * detalle.unitPrice).toFixed(2)}</td>
+            {/* Modal para mostrar detalles */}
+            {ventaSeleccionada && (
+                <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1">
+                    <div className="modal-dialog modal-lg">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    Detalles de Venta - Factura #{ventaSeleccionada.invoiceNumber}
+                                </h5>
+                                <button type="button" className="btn-close" onClick={() => setVentaSeleccionada(null)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="table-responsive">
+                                    <table className="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Producto</th>
+                                                <th>Cantidad</th>
+                                                <th>Precio Unitario</th>
+                                                <th>Subtotal</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td colSpan="3" className="text-end"><strong>Total:</strong></td>
-                                            <td>
-                                                ${ventaSeleccionada.details.reduce((total, detalle) =>
-                                                    total + (detalle.quantity * detalle.unitPrice), 0
-                                                ).toFixed(2)}
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            )}
-                        </div>
-                        <div className="modal-footer">
-                            <button
-                                type="button"
-                                className="btn btn-secondary"
-                                data-bs-dismiss="modal"
-                                onClick={limpiarModal}
-                            >
-                                Cerrar
-                            </button>
+                                        </thead>
+                                        <tbody>
+                                            {ventaSeleccionada.details.map((detalle, index) => (
+                                                <tr key={index}>
+                                                    <td>{detalle.product.name}</td>
+                                                    <td>{detalle.quantity}</td>
+                                                    <td>${detalle.unitPrice.toFixed(2)}</td>
+                                                    <td>${detalle.subtotal.toFixed(2)}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setVentaSeleccionada(null)}
+                                >
+                                    Cerrar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
 
 export default ListaVentas;
-
