@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -32,7 +33,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
         }
 
         if (personalizedClass.getCreationDate() == null) {
-            personalizedClass.setCreationDate(LocalDate.now());
+            personalizedClass.setCreationDate(LocalDate.now(ZoneId.of("America/Guayaquil")));
         }
 
         return personalizedClassRepository.save(personalizedClass);
@@ -161,20 +162,91 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
     @Override
     public PersonalizedClass reschedulePersonalizedClass(Long id, LocalDate newDate, LocalTime newTime) {
         PersonalizedClass personalizedClass = getPersonalizedClassById(id);
-        return personalizedClass;
+
+        if (!"SCHEDULED".equals(personalizedClass.getStatus())) {
+            throw new IllegalArgumentException("Can only reschedule scheduled classes");
+        }
+
+        // Validate new date is not in the past
+        if (newDate.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot reschedule class to a past date");
+        }
+
+        // Validate new time is not in the past if it's today
+        if (newDate.equals(LocalDate.now()) && newTime.isBefore(LocalTime.now())) {
+            throw new IllegalArgumentException("Cannot reschedule class to a past time today");
+        }
+
+        personalizedClass.setDate(newDate);
+        personalizedClass.setTime(newTime);
+
+        return personalizedClassRepository.save(personalizedClass);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PersonalizedClass> getUpcomingClasses(int days) {
-        return List.of();
+        LocalDate today = LocalDate.now();
+        LocalDate endDate = today.plusDays(days);
+        return personalizedClassRepository.findByDateBetween(today, endDate)
+                .stream()
+                .filter(pc -> "SCHEDULED".equals(pc.getStatus()))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PersonalizedClass> getTodayClasses() {
-        return List.of();
+        LocalDate today = LocalDate.now();
+        return personalizedClassRepository.findScheduledClassesByDate(today);
     }
 
-    public void validatePersonalizedClassData(PersonalizedClass personalizedClass) {
+    private void validatePersonalizedClassData(PersonalizedClass personalizedClass) {
+        if (personalizedClass == null) {
+            throw new IllegalArgumentException("Personalized class cannot be null");
+        }
 
+        if (personalizedClass.getClassName() == null || personalizedClass.getClassName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Class name is required");
+        }
+
+        if (personalizedClass.getDate() == null) {
+            throw new IllegalArgumentException("Class date is required");
+        }
+
+        if (personalizedClass.getTime() == null) {
+            throw new IllegalArgumentException("Class time is required");
+        }
+
+        if (personalizedClass.getPrice() == null || personalizedClass.getPrice() <= 0) {
+            throw new IllegalArgumentException("Price must be greater than zero");
+        }
+
+        if (personalizedClass.getClient() == null || personalizedClass.getClient().getId() == null) {
+            throw new IllegalArgumentException("Client is required");
+        }
+
+        // Validate that the date is not in the past
+        if (personalizedClass.getDate().isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Cannot schedule class in the past");
+        }
+
+        // Validate that the time is not in the past if it's today
+        if (personalizedClass.getDate().equals(LocalDate.now()) &&
+                personalizedClass.getTime().isBefore(LocalTime.now())) {
+            throw new IllegalArgumentException("Cannot schedule class in the past time today");
+        }
+
+        // Verify client exists
+        clientRepository.findById(personalizedClass.getClient().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
+
+        // Validate status if provided
+        if (personalizedClass.getStatus() != null) {
+            String status = personalizedClass.getStatus().toUpperCase();
+            if (!status.equals("SCHEDULED") && !status.equals("COMPLETED") && !status.equals("CANCELLED")) {
+                throw new IllegalArgumentException("Invalid status. Must be SCHEDULED, COMPLETED, or CANCELLED");
+            }
+        }
     }
 }
