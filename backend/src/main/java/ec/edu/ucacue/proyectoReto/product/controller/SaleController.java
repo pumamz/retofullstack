@@ -8,14 +8,11 @@ import ec.edu.ucacue.proyectoReto.users.service.ClientService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import org.springframework.format.annotation.DateTimeFormat;
-import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/ventas")
