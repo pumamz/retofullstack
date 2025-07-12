@@ -53,13 +53,13 @@ public class Client extends Person {
 
     // Helper methods
     public boolean isMembershipActive() {
-        return "ACTIVE".equals(membershipStatus) &&
+        return "Active".equals(membershipStatus) &&
                 membershipEndDate != null &&
                 membershipEndDate.isAfter(LocalDate.now());
     }
 
     public boolean isMembershipExpiringSoon(int daysThreshold) {
-        if (!"ACTIVE".equals(membershipStatus) || membershipEndDate == null) {
+        if (!"Active".equals(membershipStatus) || membershipEndDate == null) {
             return false;
         }
         return membershipEndDate.minusDays(daysThreshold).isBefore(LocalDate.now()) ||
@@ -67,13 +67,13 @@ public class Client extends Person {
     }
 
     public void updateRemainingDays() {
-        if (membershipEndDate != null && "ACTIVE".equals(membershipStatus)) {
+        if (membershipEndDate != null && "Active".equals(membershipStatus)) {
             LocalDate today = LocalDate.now();
             if (membershipEndDate.isAfter(today)) {
                 this.remainingDays = Math.toIntExact(today.until(membershipEndDate).getDays());
             } else {
                 this.remainingDays = 0;
-                this.membershipStatus = "EXPIRED";
+                this.membershipStatus = "Expired";
             }
         } else {
             this.remainingDays = 0;

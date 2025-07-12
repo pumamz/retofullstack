@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ClasePersonalizadaService } from '../../services/ClasePersonalizadaService';
+import { clasePersonalizadaService } from '../../services/clasePersonalizadaService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
-import { Helmet } from 'react-helmet';
 
 const ListaClasesPersonalizadas = () => {
     const navigate = useNavigate();
@@ -41,7 +40,7 @@ const ListaClasesPersonalizadas = () => {
     const cargarClasesPersonalizadas = async () => {
         try {
             setCargando(true);
-            const response = await ClasePersonalizadaService.listarClasesPersonalizadas();
+            const response = await clasePersonalizadaService.listarClasesPersonalizadas();
             setClasesPersonalizadas(response.data);
         } catch (error) {
             console.error('Error al cargar clases personalizadas:', error);
@@ -58,7 +57,7 @@ const ListaClasesPersonalizadas = () => {
     const eliminarClasePersonalizada = async (id) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar esta clase personalizada?')) {
             try {
-                await ClasePersonalizadaService.eliminarClasePersonalizada(id);
+                await clasePersonalizadaService.eliminarClasePersonalizada(id);
                 await cargarClasesPersonalizadas(); // Recargar la lista
             } catch (error) {
                 console.error('Error al eliminar clase personalizada:', error);
@@ -79,9 +78,7 @@ const ListaClasesPersonalizadas = () => {
 
     return (
         <div className="container mt-4">
-            <Helmet>
-                <title>Lista de Clases Personalizadas</title>
-            </Helmet>
+            <h1>Lista de Clases Personalizadas</h1>
             <div className="d-flex justify-content-between mb-3">
                 <h2>Lista de Clases Personalizadas</h2>
                 <Link to="/membresias/clases/crear" className="btn btn-success d-flex align-items-center justify-content-center">

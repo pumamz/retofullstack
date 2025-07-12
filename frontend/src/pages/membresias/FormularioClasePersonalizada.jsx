@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { ClasePersonalizadaService } from '../../services/ClasePersonalizadaService';
+import { useNavigate } from 'react-router-dom';
+import { membresiaVentaService } from '../../services/membresiaVentaService';
 import { Helmet } from 'react-helmet';
 
-const EditarClasePersonalizada = () => {
+const FormularioClasePersonalizada = () => {
     const navigate = useNavigate();
-    const { id } = useParams();
     const [clasePersonalizada, setClasePersonalizada] = useState({
         nombreClase: '',
         descripcion: '',
@@ -18,42 +17,26 @@ const EditarClasePersonalizada = () => {
     const [clientes, setClientes] = useState([]);
     const [error, setError] = useState(null);
     const [cargando, setCargando] = useState(false);
-    const [cargandoDatos, setCargandoDatos] = useState(true);
+    const [cargandoClientes, setCargandoClientes] = useState(true);
 
     const metodosPago = ['EFECTIVO', 'TARJETA', 'TRANSFERENCIA', 'OTRO'];
 
     useEffect(() => {
-        const cargarDatos = async () => {
-            try {
-                setCargandoDatos(true);
-                // Cargar la clase personalizada y los clientes en paralelo
-                const [claseResponse, clientesResponse] = await Promise.all([
-                    ClasePersonalizadaService.obtenerClasePersonalizadaPorId(id),
-                    ClasePersonalizadaService.obtenerClientes()
-                ]);
-                
-                const claseData = claseResponse.data;
-                setClasePersonalizada({
-                    nombreClase: claseData.nombreClase,
-                    descripcion: claseData.descripcion || '',
-                    fecha: claseData.fecha,
-                    hora: claseData.hora,
-                    precio: claseData.precio.toString(),
-                    metodoPago: claseData.metodoPago,
-                    cliente: { id: claseData.cliente?.id || '' }
-                });
-                
-                setClientes(clientesResponse.data);
-            } catch (error) {
-                console.error('Error al cargar datos:', error);
-                setError('Error al cargar los datos');
-            } finally {
-                setCargandoDatos(false);
-            }
-        };
+        cargarClientes();
+    }, []);
 
-        cargarDatos();
-    }, [id]);
+    const cargarClientes = async () => {
+        try {
+            setCargandoClientes(true);
+            const response = await membresiaVentaService.obtenerClientes();
+            setClientes(response.data);
+        } catch (error) {
+            console.error('Error al cargar clientes:', error);
+            setError('Error al cargar la lista de clientes');
+        } finally {
+            setCargandoClientes(false);
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -76,27 +59,26 @@ const EditarClasePersonalizada = () => {
             setCargando(true);
             setError(null);
             
-            // Convertir precio a número
             const claseData = {
                 ...clasePersonalizada,
                 precio: parseFloat(clasePersonalizada.precio)
             };
-            
-            await ClasePersonalizadaService.actualizarClasePersonalizada(id, claseData);
-            navigate('/clases/lista');
+
+            await membresiaVentaService.crearClasePersonalizada(claseData);
+            navigate('membresias/clases');
         } catch (error) {
-            console.error('Error al actualizar clase personalizada:', error);
-            setError('Error al actualizar la clase personalizada');
+            console.error('Error al crear clase personalizada:', error);
+            setError('Error al crear la clase personalizada');
         } finally {
             setCargando(false);
         }
     };
 
-    if (cargandoDatos) {
+    if (cargandoClientes) {
         return (
             <div className="container mt-4 text-center">
                 <div className="spinner-border" role="status">
-                    <span className="visually-hidden">Cargando...</span>
+                    <span className="visually-hidden">Cargando clientes...</span>
                 </div>
             </div>
         );
@@ -105,14 +87,14 @@ const EditarClasePersonalizada = () => {
     return (
         <div className="container mt-4">
             <Helmet>
-                <title>Editar Clase Personalizada</title>
+                <title>Nueva Clase Personalizada</title>
             </Helmet>
             
             <div className="row justify-content-center">
                 <div className="col-md-10">
                     <div className="card">
                         <div className="card-header">
-                            <h2 className="mb-0">Editar Clase Personalizada</h2>
+                            <h2 className="mb-0">Nueva Clase Personalizada</h2>
                         </div>
                         <div className="card-body">
                             {error && (
@@ -257,7 +239,7 @@ const EditarClasePersonalizada = () => {
                                     <button
                                         type="button"
                                         className="btn btn-secondary"
-                                        onClick={() => navigate('/clases/lista')}
+                                        onClick={() => navigate('/membresias/clases')}
                                         disabled={cargando}
                                     >
                                         Cancelar
@@ -267,7 +249,7 @@ const EditarClasePersonalizada = () => {
                                         className="btn btn-primary"
                                         disabled={cargando}
                                     >
-                                        {cargando ? 'Actualizando...' : 'Actualizar Clase Personalizada'}
+                                        {cargando ? 'Guardando...' : 'Crear Clase Personalizada'}
                                     </button>
                                 </div>
                             </form>
@@ -279,4 +261,4 @@ const EditarClasePersonalizada = () => {
     );
 };
 
-export default EditarClasePersonalizada;
+export default FormularioClasePersonalizada;

@@ -15,7 +15,7 @@ public interface MembershipSaleRepository extends JpaRepository<MembershipSale, 
 
     List<MembershipSale> findByClientId(Long clientId);
 
-    List<MembershipSale> findByStatus(String status);
+    List<MembershipSale> findAllByStatus(String status);
 
     List<MembershipSale> findBySaleDateBetween(LocalDate startDate, LocalDate endDate);
 

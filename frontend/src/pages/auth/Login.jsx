@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import toast from 'react-hot-toast';
+import { mantenimientoService } from '../../services/mantenimientoService';
+import { toast } from "react-toastify";
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -18,8 +19,9 @@ const Login = () => {
       if (data.token) {
         toast.success('¡Inicio de sesión exitoso!');
         navigate('/');
+        await mantenimientoService.actualizarMembresias();
       } else {
-        throw new Error('Token no recibido');
+        toast.error('Token no recibido');
       }
     } catch (error) {
       toast.error(error.response?.data?.error || error.message || 'Error al iniciar sesión');

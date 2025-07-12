@@ -97,7 +97,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
     public void deletePersonalizedClass(Long id) {
         PersonalizedClass personalizedClass = getPersonalizedClassById(id);
 
-        // Only allow deletion if the class is scheduled (not completed or cancelled)
+        // Only allow deletion if the class is scheduled (not completed or canceled)
         if (!"SCHEDULED".equals(personalizedClass.getStatus())) {
             throw new IllegalArgumentException("Can only delete scheduled classes");
         }

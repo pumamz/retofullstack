@@ -3,9 +3,7 @@ package ec.edu.ucacue.proyectoReto.membership.service;
 import ec.edu.ucacue.proyectoReto.exception.ResourceNotFoundException;
 import ec.edu.ucacue.proyectoReto.membership.model.Membership;
 import ec.edu.ucacue.proyectoReto.membership.model.MembershipSale;
-import ec.edu.ucacue.proyectoReto.membership.model.MembershipSaleDetail;
 import ec.edu.ucacue.proyectoReto.membership.repository.MembershipRepository;
-import ec.edu.ucacue.proyectoReto.membership.repository.MembershipSaleDetailRepository;
 import ec.edu.ucacue.proyectoReto.membership.repository.MembershipSaleRepository;
 import ec.edu.ucacue.proyectoReto.users.model.Client;
 import ec.edu.ucacue.proyectoReto.users.repository.ClientRepository;
@@ -24,9 +22,6 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
 
     @Autowired
     private MembershipSaleRepository membershipSaleRepository;
-
-    @Autowired
-    private MembershipSaleDetailRepository membershipSaleDetailRepository;
 
     @Autowired
     private ClientRepository clientRepository;
@@ -57,22 +52,11 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
         membershipSale.setStartDate(startDate);
         membershipSale.setEndDate(endDate);
         membershipSale.setTotalAmount(membership.getPrice());
-        membershipSale.setStatus("ACTIVE");
+        membershipSale.setStatus("Active");
         membershipSale.setCreationDate(LocalDateTime.now());
 
         // Save membership sale
         MembershipSale savedSale = membershipSaleRepository.save(membershipSale);
-
-        // Create membership sale detail
-        MembershipSaleDetail detail = new MembershipSaleDetail();
-        detail.setMembershipSale(savedSale);
-        detail.setMembershipName(membership.getName());
-        detail.setUnitPrice(membership.getPrice());
-        detail.setDurationDays(membership.getDurationDays());
-        detail.setSubtotal(membership.getPrice());
-        detail.setCreationDate(LocalDateTime.now());
-
-        membershipSaleDetailRepository.save(detail);
 
         // Update client membership information
         updateClientMembershipInfo(membershipSale.getClient(), membership, startDate, endDate);
@@ -97,16 +81,16 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
     public void cancelMembershipSale(Long id) {
         MembershipSale membershipSale = getMembershipSaleById(id);
 
-        if (!"ACTIVE".equals(membershipSale.getStatus())) {
+        if (!"Active".equals(membershipSale.getStatus())) {
             throw new IllegalArgumentException("Cannot cancel membership sale with status: " + membershipSale.getStatus());
         }
 
-        membershipSale.setStatus("CANCELLED");
+        membershipSale.setStatus("Cancelled");
         membershipSaleRepository.save(membershipSale);
 
         // Update client membership status
         Client client = membershipSale.getClient();
-        client.setMembershipStatus("CANCELLED");
+        client.setMembershipStatus("Cancelled");
         client.setRemainingDays(0);
         clientRepository.save(client);
     }
@@ -140,12 +124,12 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
         List<MembershipSale> expiredMemberships = getExpiredMemberships();
 
         for (MembershipSale membershipSale : expiredMemberships) {
-            membershipSale.setStatus("EXPIRED");
+            membershipSale.setStatus("Expired");
             membershipSaleRepository.save(membershipSale);
 
             // Update client status
             Client client = membershipSale.getClient();
-            client.setMembershipStatus("EXPIRED");
+            client.setMembershipStatus("Expired");
             client.setRemainingDays(0);
             clientRepository.save(client);
         }
@@ -200,7 +184,7 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
         fullClient.setMembershipType(membership.getName());
         fullClient.setMembershipStartDate(startDate);
         fullClient.setMembershipEndDate(endDate);
-        fullClient.setMembershipStatus("ACTIVE");
+        fullClient.setMembershipStatus("Active");
         fullClient.updateRemainingDays();
 
         clientRepository.save(fullClient);

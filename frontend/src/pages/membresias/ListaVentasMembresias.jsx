@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { VentaMembresiaService } from '../../services/VentaMembresiaService';
+import { membresiaVentaService } from '../../services/membresiaVentaService';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash, faEye } from '@fortawesome/free-solid-svg-icons';
-import { Helmet } from 'react-helmet';
 
 const ListaVentasMembresias = () => {
     const [ventasMembresias, setVentasMembresias] = useState([]);
@@ -40,7 +39,7 @@ const ListaVentasMembresias = () => {
     const cargarVentasMembresias = async () => {
         try {
             setCargando(true);
-            const response = await VentaMembresiaService.listarVentasMembresias();
+            const response = await membresiaVentaService.listarVentasMembresias();
             setVentasMembresias(response.data);
         } catch (error) {
             console.error('Error al cargar ventas de membresías:', error);
@@ -57,7 +56,7 @@ const ListaVentasMembresias = () => {
     const eliminarVentaMembresia = async (id) => {
         if (window.confirm('¿Estás seguro de que deseas eliminar esta venta de membresía?')) {
             try {
-                await VentaMembresiaService.eliminarVentaMembresia(id);
+                await membresiaVentaService.eliminarVentaMembresia(id);
                 await cargarVentasMembresias(); // Recargar la lista
             } catch (error) {
                 console.error('Error al eliminar venta de membresía:', error);
@@ -78,9 +77,6 @@ const ListaVentasMembresias = () => {
 
     return (
         <div className="container mt-4">
-            <Helmet>
-                <title>Lista de Ventas de Membresías</title>
-            </Helmet>
             <div className="d-flex justify-content-between mb-3">
                 <h2>Lista de Ventas de Membresías</h2>
                 <Link to="membresias/ventas-membresia/crear" className="btn btn-success d-flex align-items-center justify-content-center">

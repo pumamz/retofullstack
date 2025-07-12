@@ -1,7 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import { Toaster } from "react-hot-toast";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import MainLayout from "./components/layout/PrivateLayout";
 import PrivateRoute from "./routes/PrivateRoute";
 import Login from "./pages/auth/Login";
@@ -10,22 +12,19 @@ import Home from "./pages/dashboard/Home";
 import ListaProductos from "./pages/productos/ListaProductos";
 import FormularioProducto from "./pages/productos/FormularioProducto";
 import ListaVentas from "./pages/productos/ListaVentas";
-import NuevaVenta from "./pages/productos/NuevaVenta";
+import FormularioVenta from "./pages/productos/FormularioVenta";
 import ListaPedidos from "./pages/productos/ListaPedidos";
-import NuevoPedido from "./pages/productos/NuevoPedido";
+import FormularioPedido from "./pages/productos/FormularioPedido";
 import Profile from "./pages/dashboard/Profile";
-import ListaMembresia from "./pages/membresias/ListaMembresia";
-import NuevaMembresia from "./pages/membresias/NuevaMembresia";
-import EditarMembresia from "./pages/membresias/EditarMembresia";
+import ListaMembresias from "./pages/membresias/ListaMembresias";
+import FormularioMembresia from "./pages/membresias/FormularioMembresia";
 import ListaVentasMembresias from "./pages/membresias/ListaVentasMembresias";
-import NuevaVentaMembresia from "./pages/membresias/NuevaVentaMembresia";
+import FormularioVentaMembresia from "./pages/membresias/FormularioVentaMembresia";
 import ListaClasesPersonalizadas from "./pages/membresias/ListaClasesPersonalizadas";
-import NuevaClasePersonalizada from "./pages/membresias/NuevaClasePersonalizada";
-import EditarClasePersonalizada from "./pages/membresias/EditarClasePersonalizada";
+import FormularioClasePersonalizada from "./pages/membresias/FormularioClasePersonalizada";
 import ListaClientes from "./pages/usuarios/ListaClientes";
 import ListaProveedores from "./pages/usuarios/ListaProveedores";
-import CrearProveedor from "./pages/usuarios/FormularioProveedores";
-import EditarProveedor from "./pages/usuarios/FormularioProveedores";
+import FormularioProveedores from "./pages/usuarios/FormularioProveedores";
 import Reportes from "./pages/reportes/Reportes";
 import FormularioClientes from "./pages/usuarios/FormularioClientes";
 
@@ -52,28 +51,28 @@ function App() {
                         <Route path="productos/crear" element={<FormularioProducto />} />
                         <Route path="productos/editar/:id" element={<FormularioProducto />} />
                         <Route path="productos/ventas" element={<ListaVentas />} />
-                        <Route path="productos/ventas/vender" element={<NuevaVenta />} />
+                        <Route path="productos/ventas/vender" element={<FormularioVenta />} />
                         <Route path="productos/pedidos" element={<ListaPedidos />} />
-                        <Route path="productos/pedidos/pedir" element={<NuevoPedido />} />
-                        <Route path="membresias" element={<ListaMembresia />} />
-                        <Route path="membresias/crear" element={<NuevaMembresia />} />
-                        <Route path="membresias/editar/:id" element={<EditarMembresia />} />
+                        <Route path="productos/pedidos/pedir" element={<FormularioPedido />} />
+                        <Route path="membresias" element={<ListaMembresias />} />
+                        <Route path="membresias/crear" element={<FormularioMembresia />} />
+                        <Route path="membresias/editar/:id" element={<FormularioMembresia />} />
                         <Route path="membresias/clases" element={<ListaClasesPersonalizadas />} />
-                        <Route path="membresias/clases/crear" element={<NuevaClasePersonalizada />} />
-                        <Route path="membresias/clases/editar/:id" element={<EditarClasePersonalizada />} />
+                        <Route path="membresias/clases/crear" element={<FormularioClasePersonalizada />} />
+                        <Route path="membresias/clases/editar/:id" element={<FormularioClasePersonalizada />} />
                         <Route path="membresias/ventas/lista" element={<ListaVentasMembresias />} />
-                        <Route path="membresias/ventas/nueva" element={<NuevaVentaMembresia />} />
+                        <Route path="membresias/ventas/nueva" element={<FormularioVentaMembresia />} />
                         <Route path="clientes" element={<ListaClientes />} />
                         <Route path="clientes/crear" element={<FormularioClientes />} />
                         <Route path="clientes/editar/:id" element={<FormularioClientes />} />
                         <Route path="proveedores" element={<ListaProveedores />} />
-                        <Route path="proveedores/crear" element={<CrearProveedor />} />
-                        <Route path="proveedores/editar/:id" element={<EditarProveedor />} />
+                        <Route path="proveedores/crear" element={<FormularioProveedores />} />
+                        <Route path="proveedores/editar/:id" element={<FormularioProveedores />} />
                         <Route path="reportes" element={<Reportes />} />
                     </Route>
                 </Routes>
+                <ToastContainer position="top-right" autoClose={3000} />
             </Router>
-            <Toaster position="top-right" />
         </AuthProvider>
     );
 }

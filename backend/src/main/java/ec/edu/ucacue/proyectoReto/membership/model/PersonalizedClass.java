@@ -37,7 +37,7 @@ public class PersonalizedClass {
     @Column(nullable = false)
     private String status = "SCHEDULED"; // SCHEDULED, COMPLETED, CANCELLED
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 

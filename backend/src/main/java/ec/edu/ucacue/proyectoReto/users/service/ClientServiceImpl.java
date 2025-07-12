@@ -5,7 +5,7 @@ import ec.edu.ucacue.proyectoReto.users.repository.ClientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Service
@@ -63,18 +63,11 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Client> searchClients(String name, String dni) {
-        if (dni != null && !dni.isEmpty()) {
-            return clientRepository.findByDni(dni)
-                .map(List::of)
-                .orElse(new ArrayList<>());
+    public List<Client> searchClients(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return null;
         }
-        
-        if (name != null && !name.isEmpty()) {
-            return clientRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name);
-        }
-        
-        return new ArrayList<>();
+        return clientRepository.searchActiveClients(searchTerm);
     }
 
     @Override

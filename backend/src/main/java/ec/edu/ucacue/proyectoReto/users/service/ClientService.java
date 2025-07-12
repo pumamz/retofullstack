@@ -15,7 +15,7 @@ public interface ClientService {
 
     void editClient(Client client);
 
-    List<Client> searchClients(String name, String dni);
+    List<Client> searchClients(String searchTerm);
 
     void toggleEnabled(Long id, boolean enabled);
 

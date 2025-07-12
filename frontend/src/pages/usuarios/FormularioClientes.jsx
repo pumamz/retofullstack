@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ClienteService } from '../../services/clienteService';
+import { clienteService } from '../../services/clienteService';
 import { toast } from 'react-toastify';
 import InputText from '../../components/common/InputText';
 import InputNumber from '../../components/common/InputNumber';
@@ -27,8 +27,8 @@ const FormularioClientes = () => {
   const cargarCliente = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await ClienteService.obtenerClientePorId(id);
-      setCliente(response.data);
+      const response = await clienteService.obtenerClientePorId(id);
+      setCliente(response);
     } catch (error) {
       toast.error('Error al cargar el cliente');
       navigate('/clientes');
@@ -54,15 +54,15 @@ const FormularioClientes = () => {
     try {
       setLoading(true);
       if (id) {
-        await ClienteService.actualizarCliente(id, cliente);
+        await clienteService.actualizarCliente(id, cliente);
         toast.success('Cliente actualizado exitosamente');
       } else {
-        await ClienteService.crearCliente(cliente);
+        await clienteService.crearCliente(cliente);
         toast.success('Cliente creado exitosamente');
       }
       navigate('/clientes');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al guardar cliente');
+      toast.error(error.response?.data?.message || 'Error al guardar el cliente');
     } finally {
       setLoading(false);
     }

@@ -29,10 +29,8 @@ public class ClientController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<Client>> searchClients(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String dni) {
-        return ResponseEntity.ok(clientService.searchClients(name, dni));
+    public ResponseEntity<List<Client>> searchClients(@RequestParam String searchTerm) {
+        return ResponseEntity.ok(clientService.searchClients(searchTerm));
     }
 
     @PostMapping

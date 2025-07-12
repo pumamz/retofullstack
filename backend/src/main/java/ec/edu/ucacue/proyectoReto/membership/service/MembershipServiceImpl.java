@@ -22,12 +22,12 @@ public class MembershipServiceImpl implements MembershipService {
     public Membership createMembership(Membership membership) {
         validateMembershipData(membership);
 
-        // Check if membership name already exists
+        // Check if the membership name already exists
         if (membershipRepository.findByNameIgnoreCase(membership.getName()).isPresent()) {
             throw new IllegalArgumentException("A membership with this name already exists");
         }
 
-        // Set creation date if not provided
+        // Set a creation date if not provided
         if (membership.getCreationDate() == null) {
             membership.setCreationDate(LocalDate.now(ZoneId.of("America/Guayaquil")));
         }

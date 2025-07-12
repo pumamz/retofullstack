@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { VentaMembresiaService } from '../../services/VentaMembresiaService';
+import { membresiaVentaService } from '../../services/membresiaVentaService';
 import { Helmet } from 'react-helmet';
 
-const NuevaVentaMembresia = () => {
+const FormularioVentaMembresia = () => {
     const navigate = useNavigate();
     const [ventaMembresia, setVentaMembresia] = useState({
         clienteId: '',
@@ -37,7 +37,7 @@ const NuevaVentaMembresia = () => {
             // Cargar clientes
             try {
                 console.log('Cargando clientes...');
-                const clientesResponse = await VentaMembresiaService.obtenerClientes();
+                const clientesResponse = await membresiaVentaService.obtenerClientes();
                 console.log('Clientes cargados:', clientesResponse.data);
                 setClientes(clientesResponse.data);
             } catch (error) {
@@ -48,7 +48,7 @@ const NuevaVentaMembresia = () => {
             // Cargar membresías
             try {
                 console.log('Cargando membresías...');
-                const membresiasResponse = await VentaMembresiaService.obtenerMembresias();
+                const membresiasResponse = await membresiaVentaService.obtenerMembresias();
                 console.log('Membresías cargadas:', membresiasResponse.data);
                 setMembresias(membresiasResponse.data);
             } catch (error) {
@@ -84,16 +84,9 @@ const NuevaVentaMembresia = () => {
                 membresia: { id: parseInt(ventaMembresia.membresiaId) }
             };
             
-            // Formato anterior que no funcionó:
-            // const ventaData = {
-            //     metodoPago: ventaMembresia.metodoPago,
-            //     clienteId: parseInt(ventaMembresia.clienteId),
-            //     membresiaId: parseInt(ventaMembresia.membresiaId)
-            // };
-            
             console.log('Datos a enviar:', ventaData);
             
-            const response = await VentaMembresiaService.crearVentaMembresia(ventaData);
+            const response = await membresiaVentaService.crearVentaMembresia(ventaData);
             console.log('Respuesta exitosa:', response);
             navigate('/ventas-membresia/lista');
         } catch (error) {
@@ -286,4 +279,4 @@ const NuevaVentaMembresia = () => {
     );
 };
 
-export default NuevaVentaMembresia;
+export default FormularioVentaMembresia;

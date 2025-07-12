@@ -1,7 +1,6 @@
 package ec.edu.ucacue.proyectoReto.membership.service;
 
 import ec.edu.ucacue.proyectoReto.membership.model.MembershipSale;
-import ec.edu.ucacue.proyectoReto.membership.model.MembershipSaleDetail;
 import ec.edu.ucacue.proyectoReto.users.model.Client;
 
 import java.time.LocalDate;

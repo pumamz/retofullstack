@@ -1,21 +1,49 @@
 import api from '../api/axios';
 
-export const ClienteService = {
-  obtenerClientes: () => api.get(`clients`),
+export const clienteService = {
+  obtenerClientes: async () => {
+    const response = await api.get('/clients');
+    return response.data;
+  },
 
-  obtenerClientePorId: (id) => api.get(`clients/${id}`),
+  obtenerClientePorId: async (id) => {
+    const response = await api.get(`/clients/${id}`);
+    return response.data;
+  },
 
-  crearCliente: (client) => api.post(`clients`, client),
+  crearCliente: async (client) => {
+    const response = await api.post('/clients', client);
+    return response.data;
+  },
 
-  actualizarCliente: (id, client) => api.put(`clients/${id}`, client),
+  actualizarCliente: async (id, client) => {
+    const response = await api.put(`/clients/${id}`, client);
+    return response.data;
+  },
 
-  eliminarCliente: (id) => api.delete(`clients/${id}`),
+  eliminarCliente: async (id) => {
+    const response = await api.delete(`/clients/${id}`);
+    return response.data;
+  },
 
-  buscarClientes: (params) => api.get(`clients/search`, { params }),
+  buscarClientes: async (searchTerm) => {
+    const response = await api.get('/clients/search', {
+      params: { searchTerm },
+    });
+    return response.data;
+  },
 
-  cambiarEstado: (id, enabled) => 
-    api.patch(`clients/${id}/enable`, null, { params: { enabled } }),
+  cambiarEstado: async (id, enabled) => {
+    const response = await api.patch(`/clients/${id}/enable`, null, {
+      params: { enabled },
+    });
+    return response.data;
+  },
 
-  obtenerClientesPorEstado: (enabled) =>
-    api.get(`clients`, { params: { enabled } }),
+  obtenerClientesPorEstado: async (enabled) => {
+    const response = await api.get('/clients', {
+      params: { enabled },
+    });
+    return response.data;
+  },
 };
