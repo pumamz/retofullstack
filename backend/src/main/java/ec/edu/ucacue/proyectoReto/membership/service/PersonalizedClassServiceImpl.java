@@ -29,7 +29,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
 
         // Set default values
         if (personalizedClass.getStatus() == null) {
-            personalizedClass.setStatus("SCHEDULED");
+            personalizedClass.setStatus("Scheduled");
         }
 
         if (personalizedClass.getCreationDate() == null) {
@@ -57,7 +57,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
         PersonalizedClass existingClass = getPersonalizedClassById(id);
 
         // Validate that the class can be updated
-        if ("COMPLETED".equals(existingClass.getStatus()) || "CANCELLED".equals(existingClass.getStatus())) {
+        if ("Completed".equals(existingClass.getStatus()) || "Cancelled".equals(existingClass.getStatus())) {
             throw new IllegalArgumentException("Cannot update completed or cancelled class");
         }
 
@@ -98,7 +98,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
         PersonalizedClass personalizedClass = getPersonalizedClassById(id);
 
         // Only allow deletion if the class is scheduled (not completed or canceled)
-        if (!"SCHEDULED".equals(personalizedClass.getStatus())) {
+        if (!"Scheduled".equals(personalizedClass.getStatus())) {
             throw new IllegalArgumentException("Can only delete scheduled classes");
         }
 
@@ -107,8 +107,8 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PersonalizedClass> getPersonalizedClassesByClient(Long clientId) {
-        return personalizedClassRepository.findByClientId(clientId);
+    public List<PersonalizedClass> getPersonalizedClassesByClientDni(String dni) {
+        return personalizedClassRepository.findByClientDni(dni);
     }
 
     @Override
@@ -139,11 +139,11 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
     public void completePersonalizedClass(Long id) {
         PersonalizedClass personalizedClass = getPersonalizedClassById(id);
 
-        if (!"SCHEDULED".equals(personalizedClass.getStatus())) {
+        if (!"Scheduled".equals(personalizedClass.getStatus())) {
             throw new IllegalArgumentException("Can only complete scheduled classes");
         }
 
-        personalizedClass.setStatus("COMPLETED");
+        personalizedClass.setStatus("Completed");
         personalizedClassRepository.save(personalizedClass);
     }
 
@@ -151,11 +151,11 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
     public void cancelPersonalizedClass(Long id) {
         PersonalizedClass personalizedClass = getPersonalizedClassById(id);
 
-        if (!"SCHEDULED".equals(personalizedClass.getStatus())) {
+        if (!"Scheduled".equals(personalizedClass.getStatus())) {
             throw new IllegalArgumentException("Can only cancel scheduled classes");
         }
 
-        personalizedClass.setStatus("CANCELLED");
+        personalizedClass.setStatus("Cancelled");
         personalizedClassRepository.save(personalizedClass);
     }
 
@@ -163,7 +163,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
     public PersonalizedClass reschedulePersonalizedClass(Long id, LocalDate newDate, LocalTime newTime) {
         PersonalizedClass personalizedClass = getPersonalizedClassById(id);
 
-        if (!"SCHEDULED".equals(personalizedClass.getStatus())) {
+        if (!"Scheduled".equals(personalizedClass.getStatus())) {
             throw new IllegalArgumentException("Can only reschedule scheduled classes");
         }
 
@@ -190,7 +190,7 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
         LocalDate endDate = today.plusDays(days);
         return personalizedClassRepository.findByDateBetween(today, endDate)
                 .stream()
-                .filter(pc -> "SCHEDULED".equals(pc.getStatus()))
+                .filter(pc -> "Scheduled".equals(pc.getStatus()))
                 .toList();
     }
 
@@ -243,9 +243,9 @@ public class PersonalizedClassServiceImpl implements PersonalizedClassService {
 
         // Validate status if provided
         if (personalizedClass.getStatus() != null) {
-            String status = personalizedClass.getStatus().toUpperCase();
-            if (!status.equals("SCHEDULED") && !status.equals("COMPLETED") && !status.equals("CANCELLED")) {
-                throw new IllegalArgumentException("Invalid status. Must be SCHEDULED, COMPLETED, or CANCELLED");
+            String status = personalizedClass.getStatus();
+            if (!"Scheduled".equals(status) && !"Completed".equals(status) && !"Cancelled".equals(status)) {
+                throw new IllegalArgumentException("Invalid status. Must be Scheduled, Completed, or Cancelled");
             }
         }
     }

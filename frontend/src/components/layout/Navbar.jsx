@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
     FaDumbbell, FaUser, FaBox, FaShoppingCart,
-    FaClipboardList, FaCalendar, FaCalendarDay, FaHome
+    FaClipboardList, FaCalendar, FaCalendarDay, FaHome,
+    FaAddressCard
 } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 
@@ -10,6 +11,7 @@ const navItems = [
     { path: '/', label: 'Dashboard', icon: <FaHome /> },
     { path: '/membresias', label: 'Membresías', icon: <FaCalendar /> },
     { path: '/membresias/clases', label: 'Clases', icon: <FaCalendarDay /> },
+    { path: '/membresias/ventas', label: 'Suscripciones', icon: <FaAddressCard /> },
     { path: '/productos', label: 'Productos', icon: <FaBox /> },
     { path: '/productos/ventas', label: 'Ventas', icon: <FaShoppingCart /> },
     { path: '/productos/pedidos', label: 'Pedidos', icon: <FaClipboardList /> },

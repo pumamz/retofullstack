@@ -16,7 +16,7 @@ public interface MembershipSaleService {
 
     void cancelMembershipSale(Long id);
 
-    List<MembershipSale> getMembershipSalesByClient(Long clientId);
+    List<MembershipSale> getMembershipSalesByClient(String dni);
 
     List<MembershipSale> getMembershipSalesByDateRange(LocalDate startDate, LocalDate endDate);
 

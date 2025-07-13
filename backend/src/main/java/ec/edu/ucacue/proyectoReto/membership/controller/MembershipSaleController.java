@@ -31,9 +31,9 @@ public class MembershipSaleController {
         return ResponseEntity.ok(membershipSaleService.getMembershipSaleById(id));
     }
 
-    @GetMapping("/client/{clientId}")
-    public ResponseEntity<List<MembershipSale>> getMembershipSalesByClient(@PathVariable Long clientId) {
-        return ResponseEntity.ok(membershipSaleService.getMembershipSalesByClient(clientId));
+    @GetMapping("/client/{dni}")
+    public ResponseEntity<List<MembershipSale>> getMembershipSalesByClient(@PathVariable String dni) {
+        return ResponseEntity.ok(membershipSaleService.getMembershipSalesByClient(dni));
     }
 
     @GetMapping("/date-range")

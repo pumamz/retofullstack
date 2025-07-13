@@ -30,9 +30,9 @@ public class PersonalizedClassController {
         return ResponseEntity.ok(personalizedClassService.getPersonalizedClassById(id));
     }
 
-    @GetMapping("/client/{clientId}")
-    public ResponseEntity<List<PersonalizedClass>> getPersonalizedClassesByClient(@PathVariable Long clientId) {
-        return ResponseEntity.ok(personalizedClassService.getPersonalizedClassesByClient(clientId));
+    @GetMapping("/client-dni/{dni}")
+    public ResponseEntity<List<PersonalizedClass>> getByClientDni(@PathVariable String dni) {
+        return ResponseEntity.ok(personalizedClassService.getPersonalizedClassesByClientDni(dni));
     }
 
     @GetMapping("/date-range")

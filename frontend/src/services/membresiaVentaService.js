@@ -2,90 +2,58 @@ import api from '../api/axios';
 
 export const membresiaVentaService = {
   obtenerVentasMembresias: async () => {
-    try {
-      const response = await api.get('/membership-sales');
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch membership sales: ${error.message}`);
-    }
+    const response = await api.get('/membership-sales');
+    return response.data;
   },
 
   obtenerVentaMembresiaPorId: async (id) => {
-    try {
-      const response = await api.get(`/membership-sales/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch membership sale: ${error.message}`);
-    }
+    const response = await api.get(`/membership-sales/${id}`);
+    return response.data;
   },
 
-  obtenerVentasMembresiasPorCliente: async (clientId) => {
-    try {
-      const response = await api.get(`/membership-sales/client/${clientId}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch client membership sales: ${error.message}`);
-    }
+  obtenerVentasPorCliente: async (dni) => {
+    const response = await api.get(`/membership-sales/client/${dni}`);
+    return response.data;
   },
 
-  obtenerVentasMembresiasPorRangoDeFechas: async (startDate, endDate) => {
-    try {
-      const response = await api.get(`/membership-sales/date-range?startDate=${startDate}&endDate=${endDate}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch membership sales by date range: ${error.message}`);
-    }
+  obtenerVentasPorRangoFechas: async (startDate, endDate) => {
+    const response = await api.get('/membership-sales/date-range', {
+      params: { startDate, endDate }
+    });
+    return response.data;
   },
 
-  obtenerMembresiasExpirandoPronto: async (days = 7) => {
-    try {
-      const response = await api.get(`/membership-sales/expiring-soon?days=${days}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch expiring memberships: ${error.message}`);
-    }
+  obtenerMembresiasExpirando: async (days = 7) => {
+    const response = await api.get('/membership-sales/expiring-soon', {
+      params: { days }
+    });
+    return response.data;
   },
 
   obtenerMembresiasExpiradas: async () => {
-    try {
-      const response = await api.get('/membership-sales/expired');
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch expired memberships: ${error.message}`);
-    }
+    const response = await api.get('/membership-sales/expired');
+    return response.data;
   },
 
-  obtenerClientesConMembresiasExpirandoPronto: async (days = 7) => {
-    try {
-      const response = await api.get(`/membership-sales/clients-expiring-soon?days=${days}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch clients with expiring memberships: ${error.message}`);
-    }
+  obtenerClientesConMembresiasExpirando: async (days = 7) => {
+    const response = await api.get('/membership-sales/clients-expiring-soon', {
+      params: { days }
+    });
+    return response.data;
   },
 
-  crearVentaMembresia: async (membershipSaleData) => {
-    try {
-      const response = await api.post('/membership-sales', membershipSaleData);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to create membership sale: ${error.message}`);
-    }
+  crearVentaMembresia: async (data) => {
+    const response = await api.post('/membership-sales', data);
+    return response.data;
   },
 
   cancelarVentaMembresia: async (id) => {
-    try {
-      await api.patch(`/membership-sales/${id}/cancel`);
-    } catch (error) {
-      throw new Error(`Failed to cancel membership sale: ${error.message}`);
-    }
+    const response = await api.patch(`/membership-sales/${id}/cancel`);
+    return response.data;
   },
 
   actualizarMembresiasExpiradas: async () => {
-    try {
-      await api.post('/membership-sales/update-expired');
-    } catch (error) {
-      throw new Error(`Failed to update expired memberships: ${error.message}`);
-    }
-  },
+    const response = await api.post('/membership-sales/update-expired');
+    return response.data;
+  }
 };

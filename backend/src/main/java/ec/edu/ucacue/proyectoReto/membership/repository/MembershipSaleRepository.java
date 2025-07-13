@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface MembershipSaleRepository extends JpaRepository<MembershipSale, Long> {
 
-    List<MembershipSale> findByClientId(Long clientId);
+    List<MembershipSale> findByClientDni(String dni);
 
     List<MembershipSale> findAllByStatus(String status);
 

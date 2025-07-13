@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface PersonalizedClassRepository extends JpaRepository<PersonalizedClass, Long> {
 
-    List<PersonalizedClass> findByClientId(Long clientId);
+    List<PersonalizedClass> findByClientDni(String dni);
 
     List<PersonalizedClass> findByDateBetween(LocalDate startDate, LocalDate endDate);
 

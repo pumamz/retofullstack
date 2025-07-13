@@ -18,7 +18,7 @@ public interface PersonalizedClassService {
 
     void deletePersonalizedClass(Long id);
 
-    List<PersonalizedClass> getPersonalizedClassesByClient(Long clientId);
+    List<PersonalizedClass> getPersonalizedClassesByClientDni(String dni);
 
     List<PersonalizedClass> getPersonalizedClassesByDateRange(LocalDate startDate, LocalDate endDate);
 

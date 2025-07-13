@@ -35,7 +35,7 @@ public class MembershipSale {
     private LocalDate endDate;
 
     @Column(nullable = false)
-    private String status = "ACTIVE"; // ACTIVE, CANCELLED, EXPIRED
+    private String status = "Active";
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)

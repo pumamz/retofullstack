@@ -33,14 +33,14 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
     public MembershipSale createMembershipSale(MembershipSale membershipSale) {
         validateMembershipSaleData(membershipSale);
 
-        // Check if client already has an active membership
+        // Check if a client already has an active membership
         membershipSaleRepository.findActiveByClientId(membershipSale.getClient().getId())
                 .ifPresent(existingMembership -> {
                     throw new IllegalArgumentException("Client already has an active membership");
                 });
 
         // Get the membership details
-        Membership membership = membershipRepository.findById(membershipSale.getMembership().getId())
+        Membership membership = membershipRepository.findById(membershipSale.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found"));
 
         // Calculate dates
@@ -97,8 +97,8 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<MembershipSale> getMembershipSalesByClient(Long clientId) {
-        return membershipSaleRepository.findByClientId(clientId);
+    public List<MembershipSale> getMembershipSalesByClient(String dni) {
+        return membershipSaleRepository.findByClientDni(dni);
     }
 
     @Override

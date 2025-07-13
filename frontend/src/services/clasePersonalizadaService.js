@@ -1,118 +1,72 @@
 import api from '../api/axios';
 
-
 export const clasePersonalizadaService = {
-  obtenerClasesPersonalizadas: async () => {
-    try {
-      const response = await api.get('/personalized-classes');
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch personalized classes: ${error.message}`);
-    }
+  obtenerClases: async () => {
+    const response = await api.get('/personalized-classes');
+    return response.data;
   },
 
-  obtenerClasePersonalizadaPorId: async (id) => {
-    try {
-      const response = await api.get(`/personalized-classes/${id}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch personalized class: ${error.message}`);
-    }
+  obtenerClasePorId: async (id) => {
+    const response = await api.get(`/personalized-classes/${id}`);
+    return response.data;
   },
 
-  obtenerClasesPersonalizadasPorCliente: async (clientId) => {
-    try {
-      const response = await api.get(`/personalized-classes/client/${clientId}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch client personalized classes: ${error.message}`);
-    }
+  obtenerPorClienteDni: async (dni) => {
+    const response = await api.get(`/personalized-classes/client-dni/${dni}`);
+    return response.data;
   },
 
-  obtenerClasesPersonalizadasPorRangoDeFechas: async (startDate, endDate) => {
-    try {
-      const response = await api.get(`/personalized-classes/date-range?startDate=${startDate}&endDate=${endDate}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch personalized classes by date range: ${error.message}`);
-    }
+  obtenerPorRangoFechas: async (startDate, endDate) => {
+    const response = await api.get('/personalized-classes/date-range', {
+      params: { startDate, endDate },
+    });
+    return response.data;
   },
 
-  obtenerClasesPersonalizadasPorEstado: async (estado) => {
-    try {
-      const response = await api.get(`/personalized-classes/status/${estado}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch personalized classes by status: ${error.message}`);
-    }
+  obtenerPorEstado: async (estado) => {
+    const response = await api.get(`/personalized-classes/status/${estado}`);
+    return response.data;
   },
 
-  obtenerClasesPersonalizadasProgramadasPorFecha: async (fecha) => {
-    try {
-      const response = await api.get(`/personalized-classes/scheduled/${fecha}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch scheduled classes: ${error.message}`);
-    }
+  obtenerProgramadasPorFecha: async (fecha) => {
+    const response = await api.get(`/personalized-classes/scheduled/${fecha}`);
+    return response.data;
   },
 
-  obtenerClasesPersonalizadasPorClienteYEstado: async (clientId, estado) => {
-    try {
-      const response = await api.get(`/personalized-classes/client/${clientId}/status/${estado}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to fetch personalized classes by client and status: ${error.message}`);
-    }
+  obtenerPorClienteYEstado: async (clientId, estado) => {
+    const response = await api.get(`/personalized-classes/client/${clientId}/status/${estado}`);
+    return response.data;
   },
 
-  crearClasePersonalizada: async (classData) => {
-    try {
-      const response = await api.post('/personalized-classes', classData);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to create personalized class: ${error.message}`);
-    }
+  crearClase: async (data) => {
+    const response = await api.post('/personalized-classes', data);
+    return response.data;
   },
 
-  actualizarClasePersonalizada: async (id, classData) => {
-    try {
-      const response = await api.put(`/personalized-classes/${id}`, classData);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to update personalized class: ${error.message}`);
-    }
+  actualizarClase: async (id, data) => {
+    const response = await api.put(`/personalized-classes/${id}`, data);
+    return response.data;
   },
 
-  eliminarClasePersonalizada: async (id) => {
-    try {
-      await api.delete(`/personalized-classes/${id}`);
-    } catch (error) {
-      throw new Error(`Failed to delete personalized class: ${error.message}`);
-    }
+  eliminarClase: async (id) => {
+    const response = await api.delete(`/personalized-classes/${id}`);
+    return response.data;
   },
 
-  completarClasePersonalizada: async (id) => {
-    try {
-      await api.patch(`/personalized-classes/${id}/complete`);
-    } catch (error) {
-      throw new Error(`Failed to complete personalized class: ${error.message}`);
-    }
+  completarClase: async (id) => {
+    const response = await api.patch(`/personalized-classes/${id}/complete`);
+    return response.data;
   },
 
-  cancelarClasePersonalizada: async (id) => {
-    try {
-      await api.patch(`/personalized-classes/${id}/cancel`);
-    } catch (error) {
-      throw new Error(`Failed to cancel personalized class: ${error.message}`);
-    }
+  cancelarClase: async (id) => {
+    const response = await api.patch(`/personalized-classes/${id}/cancel`);
+    return response.data;
   },
 
-  reprogramarClasePersonalizada: async (id, nuevaFecha, nuevoHora) => {
-    try {
-      const response = await api.patch(`/personalized-classes/${id}/reschedule?nuevaFecha=${nuevaFecha}&nuevoHora=${nuevoHora}`);
-      return response.data;
-    } catch (error) {
-      throw new Error(`Failed to reschedule personalized class: ${error.message}`);
-    }
+  reprogramarClase: async (id, nuevaFecha, nuevoHora) => {
+    const response = await api.patch(`/personalized-classes/${id}/reschedule`, null, {
+      params: { newDate: nuevaFecha, newTime: nuevoHora },
+    });
+    return response.data;
   },
 };

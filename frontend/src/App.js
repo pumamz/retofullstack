@@ -33,10 +33,8 @@ function App() {
         <AuthProvider>
             <Router>
                 <Routes>
-                    {/* Rutas públicas */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    {/* Rutas protegidas bajo layout con Navbar */}
                     <Route
                         path="/"
                         element={
@@ -60,8 +58,8 @@ function App() {
                         <Route path="membresias/clases" element={<ListaClasesPersonalizadas />} />
                         <Route path="membresias/clases/crear" element={<FormularioClasePersonalizada />} />
                         <Route path="membresias/clases/editar/:id" element={<FormularioClasePersonalizada />} />
-                        <Route path="membresias/ventas/lista" element={<ListaVentasMembresias />} />
-                        <Route path="membresias/ventas/nueva" element={<FormularioVentaMembresia />} />
+                        <Route path="membresias/ventas" element={<ListaVentasMembresias />} />
+                        <Route path="membresias/ventas/crear" element={<FormularioVentaMembresia />} />
                         <Route path="clientes" element={<ListaClientes />} />
                         <Route path="clientes/crear" element={<FormularioClientes />} />
                         <Route path="clientes/editar/:id" element={<FormularioClientes />} />
