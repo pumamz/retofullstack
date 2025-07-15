@@ -19,5 +19,4 @@ public interface ClientService {
 
     void toggleEnabled(Long id, boolean enabled);
 
-    List<Client> findByEnabled(boolean enabled);
 }

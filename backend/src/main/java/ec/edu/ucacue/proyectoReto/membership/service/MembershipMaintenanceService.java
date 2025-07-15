@@ -4,9 +4,7 @@ import ec.edu.ucacue.proyectoReto.membership.model.MembershipSale;
 import ec.edu.ucacue.proyectoReto.membership.repository.MembershipSaleRepository;
 import ec.edu.ucacue.proyectoReto.users.model.Client;
 import ec.edu.ucacue.proyectoReto.users.repository.ClientRepository;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,8 +19,6 @@ public class MembershipMaintenanceService {
     @Autowired
     private ClientRepository clientRepository;
 
-    //@Scheduled(fixedRate = 86400000)
-    //@PostConstruct
     public void updateMembershipStatuses() {
         List<MembershipSale> activeSales = membershipSaleRepository.findAllByStatus("Active");
 

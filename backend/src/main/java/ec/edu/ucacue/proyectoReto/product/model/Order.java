@@ -3,12 +3,10 @@ package ec.edu.ucacue.proyectoReto.product.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import ec.edu.ucacue.proyectoReto.users.model.Supplier;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

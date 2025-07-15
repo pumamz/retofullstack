@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import ec.edu.ucacue.proyectoReto.exception.ResourceNotFoundException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,7 +20,6 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductService productService;
 
-    @Autowired
     public OrderServiceImpl(OrderRepository orderRepository, ProductService productService) {
         this.orderRepository = orderRepository;
         this.productService = productService;

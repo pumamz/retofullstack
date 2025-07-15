@@ -2,7 +2,6 @@ package ec.edu.ucacue.proyectoReto.users.service;
 
 import ec.edu.ucacue.proyectoReto.users.model.Client;
 import ec.edu.ucacue.proyectoReto.users.repository.ClientRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,8 +10,11 @@ import java.util.List;
 @Service
 public class ClientServiceImpl implements ClientService {
     
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+
+    public ClientServiceImpl(ClientRepository clientRepository) {
+        this.clientRepository = clientRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -76,12 +78,6 @@ public class ClientServiceImpl implements ClientService {
         Client client = findClientById(id);
         client.setEnabled(enabled);
         clientRepository.save(client);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Client> findByEnabled(boolean enabled) {
-        return clientRepository.findByEnabled(enabled);
     }
 
     private void validateClientData(Client client) {

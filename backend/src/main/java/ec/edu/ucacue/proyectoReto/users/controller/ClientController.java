@@ -3,7 +3,6 @@ package ec.edu.ucacue.proyectoReto.users.controller;
 import ec.edu.ucacue.proyectoReto.users.model.Client;
 import ec.edu.ucacue.proyectoReto.users.service.ClientService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,11 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000")
 public class ClientController {
 
-    @Autowired
-    private ClientService clientService;
+    private final ClientService clientService;
+
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Client>> getAllClients() {

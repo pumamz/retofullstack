@@ -6,7 +6,6 @@ import ec.edu.ucacue.proyectoReto.product.model.Product;
 import ec.edu.ucacue.proyectoReto.product.model.Sale;
 import ec.edu.ucacue.proyectoReto.product.model.SaleDetail;
 import ec.edu.ucacue.proyectoReto.product.repository.SaleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
@@ -19,7 +18,6 @@ public class SaleServiceImpl implements SaleService {
     private final SaleRepository saleRepository;
     private final ProductService productService;
 
-    @Autowired
     public SaleServiceImpl(SaleRepository saleRepository, ProductService productService) {
         this.saleRepository = saleRepository;
         this.productService = productService;

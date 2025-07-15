@@ -7,17 +7,13 @@ import { toast } from 'react-toastify';
 const ListaProveedores = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [search, setSearch] = useState({ name: '', dni: '' });
-  const [loading, setLoading] = useState(false);
 
   const loadSuppliers = async () => {
     try {
-      setLoading(true);
       const response = await ProveedorService.obtenerProveedores();
       setSuppliers(response.data);
     } catch (error) {
       toast.error('Error al cargar los proveedores');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -44,16 +40,6 @@ const ListaProveedores = () => {
       toast.error('Error al actualizar el estado');
     }
   };
-
-  if (loading) {
-    return (
-      <div className="text-center mt-4">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Cargando...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mt-4">
@@ -109,7 +95,14 @@ const ListaProveedores = () => {
           </tr>
         </thead>
         <tbody>
-          {suppliers.map((supplier) => (
+        {suppliers.length === 0 ? (
+            <tr>
+              <td colSpan="13" className="text-center">
+                No se encontraron proveedores
+              </td>
+            </tr>
+          ) : (
+          suppliers.map((supplier) => (
             <tr key={supplier.id}>
               <td>{supplier.dni}</td>
               <td>{supplier.firstName}</td>
@@ -141,7 +134,9 @@ const ListaProveedores = () => {
                 </Button>
               </td>
             </tr>
-          ))}
+          ))
+          )}
+        
         </tbody>
       </Table>
     </div>

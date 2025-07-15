@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
-import toast from 'react-hot-toast';
+import { toast } from "react-toastify";
+import { mostrarError } from '../../api/toast';
 
 const Register = () => {
     const [username, setUsername] = useState('');
@@ -19,7 +20,7 @@ const Register = () => {
             toast.success('¡Registro exitoso!');
             navigate('/');
         } catch (error) {
-            toast.error(error.response?.data?.error || 'Error en el registro');
+            mostrarError(error, 'Error en el registro');
         } finally {
             setLoading(false);
         }
