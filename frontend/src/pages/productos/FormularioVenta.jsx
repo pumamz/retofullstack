@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { VentaService } from "../../services/ventaService";
+import { mostrarError } from "../../api/toast";
 
 const FormularioVenta = () => {
     const navigate = useNavigate();
@@ -18,8 +19,6 @@ const FormularioVenta = () => {
         quantity: 1,
         unitPrice: 0,
     });
-    const [cargando, setCargando] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         cargarDatosIniciales();
@@ -27,16 +26,11 @@ const FormularioVenta = () => {
 
     const cargarDatosIniciales = async () => {
         try {
-            setCargando(true);
             const response = await VentaService.obtenerDatosVenta();
-            console.log("Datos cargados:", response.data);
             setClientes(response.data.clients || []);
             setProductos(response.data.products || []);
         } catch (error) {
-            console.error("Error al cargar datos:", error);
-            setError("Error al cargar los datos iniciales");
-        } finally {
-            setCargando(false);
+            mostrarError(error, "Error al cargar los datos iniciales");
         }
     };
 
@@ -97,8 +91,7 @@ const FormularioVenta = () => {
             await VentaService.crearVenta(venta);
             navigate("/productos/ventas");
         } catch (error) {
-            console.error("Error al registrar venta:", error);
-            alert("Error al registrar la venta");
+            mostrarError(error, "Error al registrar la venta");
         }
     };
 
@@ -110,25 +103,9 @@ const FormularioVenta = () => {
         }));
     };
 
-
-    if (cargando) {
-        return (
-            <div className="container mt-4 text-center">
-                <div className="spinner-border" role="status">
-                    <span className="visually-hidden">Cargando...</span>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <div className="container mt-4">
             <h2>Nueva Venta</h2>
-            {error && (
-                <div className="alert alert-danger" role="alert">
-                    {error}
-                </div>
-            )}
 
             <form onSubmit={handleSubmit}>
                 <div className="row">

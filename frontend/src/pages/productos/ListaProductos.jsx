@@ -5,6 +5,7 @@ import { Table, Button, Badge, Alert, OverlayTrigger, Tooltip } from "react-boot
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash, faPlus, faExclamationTriangle } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { mostrarError } from "../../api/toast";
 
 const ListaProductos = () => {
     const [productos, setProductos] = useState([]);
@@ -20,8 +21,7 @@ const ListaProductos = () => {
             const response = await ProductoService.listarProductos();
             setProductos(response.data);
         } catch (error) {
-            console.error("Error al cargar productos:", error);
-            toast.error("Error al cargar los productos");
+            mostrarError(error, "Error al cargar los productos");
         }
     };
 
@@ -30,7 +30,7 @@ const ListaProductos = () => {
             const response = await ProductoService.obtenerProductosStockBajo();
             setProductosStockBajo(response.data);
         } catch (error) {
-            console.error("Error al cargar productos con stock bajo:", error);
+            mostrarError(error, "Error al cargar productos con stock bajo:", error);
         }
     };
 
@@ -41,8 +41,7 @@ const ListaProductos = () => {
                 toast.success("Producto eliminado exitosamente");
                 cargarProductos();
             } catch (error) {
-                console.error("Error al eliminar producto:", error);
-                toast.error("Error al eliminar el producto");
+                mostrarError(error, "Error al eliminar el producto");
             }
         }
     };

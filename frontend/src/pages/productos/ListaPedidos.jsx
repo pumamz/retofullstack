@@ -5,6 +5,7 @@ import { Table, Button, Modal, Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faBoxOpen } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { mostrarError } from "../../api/toast";
 
 const ListaPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -20,8 +21,7 @@ const ListaPedidos = () => {
       const response = await PedidoService.listarPedidos();
       setPedidos(response.data);
     } catch (error) {
-      console.error("Error al cargar pedidos:", error);
-      toast.error("Error al cargar los pedidos");
+      mostrarError(error, "Error al cargar los pedidos");
     }
   };
 
@@ -31,15 +31,14 @@ const ListaPedidos = () => {
       toast.success("Estado actualizado exitosamente");
       cargarPedidos();
     } catch (error) {
-      console.error("Error al actualizar estado:", error);
-      toast.error("Error al actualizar el estado");
+      mostrarError(error, "Error al actualizar el estado");
     }
   };
 
   const registrarRecepcion = async (orderId) => {
     try {
       if (Object.keys(cantidadesRecibidas).length === 0) {
-        toast.error("Debe ingresar al menos una cantidad");
+        toast.info("Debe ingresar al menos una cantidad");
         return;
       }
 
@@ -48,7 +47,7 @@ const ListaPedidos = () => {
       );
 
       if (!cantidadesValidas) {
-        toast.error("Las cantidades recibidas deben ser mayores a 0");
+        toast.info("Las cantidades recibidas deben ser mayores a 0");
         return;
       }
 
@@ -58,8 +57,7 @@ const ListaPedidos = () => {
       setCantidadesRecibidas({});
       cargarPedidos();
     } catch (error) {
-      console.error("Error al registrar recepción:", error);
-      toast.error("Error al registrar la recepción");
+      mostrarError(error, "Error al registrar la recepción");
     }
   };
 
@@ -75,7 +73,7 @@ const ListaPedidos = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Lista de Pedidos</h2>
-        <Button variant="success" as={Link} to="/productos/pedidos/pedir">
+        <Button variant="success" as={Link} to="/productos/pedidos/crear">
           <FontAwesomeIcon icon={faPlus} className="me-2" />
           Nuevo Pedido
         </Button>

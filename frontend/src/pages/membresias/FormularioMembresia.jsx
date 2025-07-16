@@ -6,11 +6,11 @@ import InputText from '../../components/common/InputText';
 import InputNumber from '../../components/common/InputNumber';
 import FormButtons from '../../components/common/FormButtons';
 import FormTitle from '../../components/common/FormTitle';
+import { mostrarError } from '../../api/toast';
 
 const FormularioMembresia = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
   const [membresia, setMembresia] = useState({
     name: '',
     price: '',
@@ -29,7 +29,6 @@ const FormularioMembresia = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
       const payload = {
         ...membresia,
         price: parseFloat(membresia.price),
@@ -45,38 +44,23 @@ const FormularioMembresia = () => {
       }
       navigate('/membresias');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al guardar la membresía');
-    } finally {
-      setLoading(false);
+      mostrarError(error, 'Error al guardar la membresía');
     }
   };
 
   const cargarMembresia = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await membresiaService.obtenerMembresiaPorId(id);
       setMembresia(response);
     } catch (error) {
-      toast.error('Error al cargar la membresía');
+      mostrarError(error, 'Error al cargar la membresía');
       navigate('/membresias');
-    } finally {
-      setLoading(false);
     }
   }, [id, navigate]);
 
   useEffect(() => {
     if (id) cargarMembresia();
   }, [id, cargarMembresia]);
-
-  if (loading) {
-    return (
-      <div className="container mt-4 text-center">
-        <div className="spinner-border" role="status">
-          <span className="visually-hidden">Guardando...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="container mt-4">
@@ -89,7 +73,6 @@ const FormularioMembresia = () => {
             value={membresia.name}
             onChange={handleChange}
             required
-            disabled={loading}
           />
         </div>
         <div className="col-md-6">
@@ -101,7 +84,6 @@ const FormularioMembresia = () => {
             min={0}
             onChange={handleChange}
             required
-            disabled={loading}
           />
         </div>
         <div className="col-md-6">
@@ -113,7 +95,6 @@ const FormularioMembresia = () => {
             min={1}
             onChange={handleChange}
             required
-            disabled={loading}
           />
         </div>
         <div className="col-md-12">
@@ -123,7 +104,6 @@ const FormularioMembresia = () => {
             value={membresia.description}
             onChange={handleChange}
             required
-            disabled={loading}
             as="textarea"
           />
         </div>
@@ -132,7 +112,7 @@ const FormularioMembresia = () => {
           <strong>Nota:</strong> La fecha de creación se genera automáticamente.
         </div>
 
-        <FormButtons loading={loading} onCancel={() => navigate('/membresias')} />
+        <FormButtons onCancel={() => navigate('/membresias')} />
       </form>
     </div>
   );

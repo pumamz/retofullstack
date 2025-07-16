@@ -7,6 +7,7 @@ import { membresiaService } from '../../services/membresiaService';
 import SelectField from '../../components/common/SelectField';
 import FormButtons from '../../components/common/FormButtons';
 import FormTitle from '../../components/common/FormTitle';
+import { mostrarError } from '../../api/toast';
 
 const FormularioVentaMembresia = () => {
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const FormularioVentaMembresia = () => {
         label: `${c.firstName} ${c.lastName}`
       })));
     } catch (error) {
-      toast.error('Error al cargar clientes');
+      mostrarError(error, 'Error al cargar clientes');
       navigate('/membresias/ventas');
     }
   }, [navigate]);
@@ -48,7 +49,7 @@ const FormularioVentaMembresia = () => {
         label: `${m.name} - $${m.price?.toFixed(2)}`
       })));
     } catch (error) {
-      toast.error('Error al cargar membresías');
+      mostrarError(error, 'Error al cargar membresías');
       navigate('/membresias/ventas');
     }
   }, [navigate]);
@@ -59,25 +60,25 @@ const FormularioVentaMembresia = () => {
   }, [cargarClientes, cargarMembresias]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  if (name === 'clienteId') {
-    setVenta(prev => ({
-      ...prev,
-      client: { id: value }
-    }));
-  } else if (name === 'membresiaId') {
-    setVenta(prev => ({
-      ...prev,
-      membership: { id: value }
-    }));
-  } else {
-    setVenta(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  }
-};
+    if (name === 'clienteId') {
+      setVenta(prev => ({
+        ...prev,
+        client: { id: value }
+      }));
+    } else if (name === 'membresiaId') {
+      setVenta(prev => ({
+        ...prev,
+        membership: { id: value }
+      }));
+    } else {
+      setVenta(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+  };
 
 
   const handleSubmit = async (e) => {
@@ -94,8 +95,7 @@ const FormularioVentaMembresia = () => {
       toast.success('Venta de membresía creada');
       navigate('/membresias/ventas');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al crear la venta');
-      console.error(error);
+      mostrarError(error, 'Error al crear la venta');
     }
   };
 

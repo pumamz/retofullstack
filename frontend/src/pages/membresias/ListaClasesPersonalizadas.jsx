@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faCheck, faTimes, faClock, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import { mostrarError } from '../../api/toast';
 
 const ListaClasesPersonalizadas = () => {
     const navigate = useNavigate();
@@ -27,7 +28,7 @@ const ListaClasesPersonalizadas = () => {
             setTodasLasClases(data);
             setClasesPersonalizadas(data);
         } catch (error) {
-            toast.error('Error al cargar clases personalizadas');
+            mostrarError(error, 'Error al cargar clases personalizadas');
         }
     }, []);
 
@@ -54,7 +55,7 @@ const ListaClasesPersonalizadas = () => {
 
             setClasesPersonalizadas(resultado);
         } catch (error) {
-            toast.error('Error al aplicar filtros');
+            mostrarError(error, 'Error al aplicar filtros');
         }
     }, [todasLasClases, searchTerm, filtroEstado, filtroFechaInicio, filtroFechaFin]);
 
@@ -74,7 +75,7 @@ const ListaClasesPersonalizadas = () => {
                 toast.success('Clase eliminada');
                 cargarClases();
             } catch (error) {
-                toast.error('Error al eliminar clase personalizada');
+                mostrarError(error, 'Error al eliminar clase personalizada');
             }
         }
     };
@@ -85,7 +86,7 @@ const ListaClasesPersonalizadas = () => {
             toast.success('Clase marcada como completada');
             cargarClases();
         } catch (error) {
-            toast.error('Error al completar clase');
+            mostrarError(error, 'Error al completar clase');
         }
     };
 
@@ -95,7 +96,7 @@ const ListaClasesPersonalizadas = () => {
             toast.info('Clase cancelada');
             cargarClases();
         } catch (error) {
-            toast.error('Error al cancelar clase');
+            mostrarError(error, 'Error al cancelar clase');
         }
     };
 
@@ -117,7 +118,7 @@ const ListaClasesPersonalizadas = () => {
             setShowReprogramarModal(false);
             cargarClases();
         } catch (error) {
-            toast.error('Error al reprogramar clase');
+            mostrarError(error, 'Error al reprogramar clase');
         }
     };
 
@@ -142,18 +143,22 @@ const ListaClasesPersonalizadas = () => {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <Button variant="primary">
+                            <Button type="submit" variant="primary">
                                 <FontAwesomeIcon icon={faSearch} />
                             </Button>
                         </InputGroup>
                     </Col>
                     <Col md={6} className="d-flex justify-content-between">
                         <div className="d-flex gap-2">
-                            <Button onClick={() => setMostrarFiltros(!mostrarFiltros)}>
-                                <FontAwesomeIcon icon={faFilter} className="me-2" /> Filtros
+                            <Button
+                                onClick={() => setMostrarFiltros(!mostrarFiltros)}>
+                                <FontAwesomeIcon icon={faFilter} className="me-2" />
+                                Filtros
                             </Button>
-                            <Button onClick={limpiarFiltros}>
-                                <FontAwesomeIcon icon={faTimes} className="me-2" /> Limpiar
+                            <Button
+                                onClick={limpiarFiltros}>
+                                <FontAwesomeIcon icon={faTimes} className="me-2" />
+                                Limpiar
                             </Button>
                         </div>
                         <Button variant="success" onClick={() => navigate('/membresias/clases/crear')}>

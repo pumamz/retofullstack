@@ -48,7 +48,7 @@ const ListaVentasMembresias = () => {
             }
             setVentas(filtradas);
         } catch (error) {
-            mostrarError('Error al aplicar filtros');
+            mostrarError(null, 'Error al aplicar filtros');
         }
     }, [searchTerm, filtroFechaInicio, filtroFechaFin, todasLasVentas]);
 

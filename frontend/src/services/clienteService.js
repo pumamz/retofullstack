@@ -27,8 +27,11 @@ export const clienteService = {
   },
 
   buscarClientes: async (searchTerm) => {
+    if (!searchTerm || searchTerm.trim() === '') {
+      return await clienteService.obtenerClientes();
+    }
     const response = await api.get('/clients/search', {
-      params: { searchTerm },
+      params: { searchTerm: searchTerm.trim() },
     });
     return response.data;
   },
@@ -40,10 +43,40 @@ export const clienteService = {
     return response.data;
   },
 
-  obtenerClientesPorEstado: async (enabled) => {
-    const response = await api.get('/clients', {
-      params: { enabled },
+  filtrarClientes: async (filtros = {}) => {
+    const { searchTerm, enabled, membershipType, membershipStatus } = filtros;
+    
+    if (searchTerm && searchTerm.trim() !== '') {
+      return await clienteService.buscarClientes(searchTerm);
+    }
+    
+    if (enabled === undefined && !membershipType && !membershipStatus) {
+      return await clienteService.obtenerClientes();
+    }
+    
+    const todosClientes = await clienteService.obtenerClientes();
+    
+    return todosClientes.filter(client => {
+      let cumpleFiltros = true;
+      
+      if (enabled !== undefined) {
+        cumpleFiltros = cumpleFiltros && client.enabled === enabled;
+      }
+      
+      if (membershipType && membershipType !== '') {
+        cumpleFiltros = cumpleFiltros && client.membershipType === membershipType;
+      }
+      
+      if (membershipStatus && membershipStatus !== '') {
+        cumpleFiltros = cumpleFiltros && client.membershipStatus === membershipStatus;
+      }
+      
+      return cumpleFiltros;
     });
-    return response.data;
+  },
+
+  obtenerClientesPorEstado: async (enabled) => {
+    const todosClientes = await clienteService.obtenerClientes();
+    return todosClientes.filter(client => client.enabled === enabled);
   },
 };

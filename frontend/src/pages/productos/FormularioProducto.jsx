@@ -7,12 +7,12 @@ import InputNumber from '../../components/common/InputNumber';
 import TextareaField from '../../components/common/TextareaField';
 import FormButtons from '../../components/common/FormButtons';
 import FormTitle from '../../components/common/FormTitle';
+import { mostrarError } from '../../api/toast';
 
 const FormularioProducto = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 console.log("ID en FormularioClientes:", id);
-  const [loading, setLoading] = useState(false);
   const [producto, setProducto] = useState({
     name: '',
     description: '',
@@ -26,14 +26,11 @@ console.log("ID en FormularioClientes:", id);
 
   const cargarProducto = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await ProductoService.obtenerProducto(id);
       setProducto(response.data);
     } catch (error) {
-      toast.error('Error al cargar el producto');
+      mostrarError(error, 'Error al cargar el producto');
       navigate('/productos');
-    } finally {
-      setLoading(false);
     }
   }, [id, navigate]);
 
@@ -52,7 +49,6 @@ console.log("ID en FormularioClientes:", id);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
       if (id) {
         await ProductoService.actualizarProducto(id, producto);
         toast.success('Producto actualizado exitosamente');
@@ -62,15 +58,13 @@ console.log("ID en FormularioClientes:", id);
       }
       navigate('/productos');
     } catch (error) {
-      toast.error('Error al guardar el producto');
-    } finally {
-      setLoading(false);
+      mostrarError(error, 'Error al guardar el producto');
     }
   };
 
   return (
     <div className="container mt-4">
-      <FormTitle text={id ? 'Editar Producto' : 'Nuevo Producto'} />
+      <FormTitle id={id} title="Producto" />
       <form onSubmit={handleSubmit} className="row g-3">
         {[
           { label: 'Nombre', name: 'name' },
@@ -83,7 +77,6 @@ console.log("ID en FormularioClientes:", id);
               value={producto[name]}
               onChange={handleChange}
               required
-              disabled={loading}
             />
           </div>
         ))}
@@ -94,7 +87,6 @@ console.log("ID en FormularioClientes:", id);
             name="description"
             value={producto.description}
             onChange={handleChange}
-            disabled={loading}
             rows={3}
           />
         </div>
@@ -113,13 +105,11 @@ console.log("ID en FormularioClientes:", id);
               onChange={handleChange}
               step={0.01}
               required
-              disabled={loading}
             />
           </div>
         ))}
 
         <FormButtons
-          loading={loading}
           onCancel={() => navigate('/productos')}
         />
       </form>

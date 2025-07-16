@@ -49,9 +49,9 @@ function App() {
                         <Route path="productos/crear" element={<FormularioProducto />} />
                         <Route path="productos/editar/:id" element={<FormularioProducto />} />
                         <Route path="productos/ventas" element={<ListaVentas />} />
-                        <Route path="productos/ventas/vender" element={<FormularioVenta />} />
+                        <Route path="productos/ventas/crear" element={<FormularioVenta />} />
                         <Route path="productos/pedidos" element={<ListaPedidos />} />
-                        <Route path="productos/pedidos/pedir" element={<FormularioPedido />} />
+                        <Route path="productos/pedidos/crear" element={<FormularioPedido />} />
                         <Route path="membresias" element={<ListaMembresias />} />
                         <Route path="membresias/crear" element={<FormularioMembresia />} />
                         <Route path="membresias/editar/:id" element={<FormularioMembresia />} />

@@ -5,11 +5,11 @@ import { toast } from 'react-toastify';
 import InputText from '../../components/common/InputText';
 import FormTitle from '../../components/common/FormTitle';
 import FormButtons from '../../components/common/FormButtons';
+import { mostrarError } from '../../api/toast';
 
 const FormularioProveedores = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
   const [proveedor, setProveedor] = useState({
     firstName: '',
     lastName: '',
@@ -22,14 +22,11 @@ const FormularioProveedores = () => {
 
   const cargarProveedor = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await ProveedorService.obtenerProveedorPorId(id);
       setProveedor(response.data);
     } catch (error) {
-      toast.error('Error al cargar el proveedor');
-      navigate('/proveedores');
-    } finally {
-      setLoading(false);
+      mostrarError(error, 'Error al cargar el proveedor');
+      navigate('/proveedores')
     }
   }, [id, navigate]);
 
@@ -48,7 +45,6 @@ const FormularioProveedores = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
       if (id) {
         await ProveedorService.actualizarProveedor(id, proveedor);
         toast.success('Proveedor actualizado exitosamente');
@@ -58,9 +54,7 @@ const FormularioProveedores = () => {
       }
       navigate('/proveedores');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al guardar el proveedor');
-    } finally {
-      setLoading(false);
+      mostrarError(error, 'Error al guardar el proveedor');
     }
   };
 
@@ -86,13 +80,11 @@ const FormularioProveedores = () => {
               value={proveedor[name]}
               onChange={handleChange}
               required
-              disabled={loading}
             />
           </div>
         ))}
 
         <FormButtons
-          loading={loading}
           onCancel={() => navigate('/proveedores')}
         />
       </form>

@@ -8,6 +8,7 @@ import InputNumber from '../../components/common/InputNumber';
 import SelectField from '../../components/common/SelectField';
 import FormButtons from '../../components/common/FormButtons';
 import FormTitle from '../../components/common/FormTitle';
+import { mostrarError } from '../../api/toast';
 
 const FormularioClasePersonalizada = () => {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ const FormularioClasePersonalizada = () => {
       label: `${c.firstName} ${c.lastName}`
     })));
   } catch (error) {
-    toast.error('Error al cargar clientes');
+    mostrarError('Error al cargar clientes');
     navigate('/membresias/clases');
   }
 }, [navigate]);
@@ -51,7 +52,7 @@ const FormularioClasePersonalizada = () => {
         client: { id: data.client?.id || '' }
       });
     } catch (error) {
-      toast.error('Error al cargar la clase');
+      mostrarError(error, 'Error al cargar la clase');
       navigate('/membresias/clases');
     } finally {
     }
@@ -97,8 +98,7 @@ const FormularioClasePersonalizada = () => {
 
       navigate('/membresias/clases');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al guardar la clase');
-      console.error(error, 'Error al guardar la clase personalizada', error.response?.data);
+      mostrarError(error, 'Error al guardar la clase');
     }
   };
 

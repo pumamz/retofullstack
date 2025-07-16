@@ -3,6 +3,7 @@ import { ProveedorService } from '../../services/proveedorService';
 import { Table, Button, Form, InputGroup } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { mostrarError } from '../../api/toast';
 
 const ListaProveedores = () => {
   const [suppliers, setSuppliers] = useState([]);
@@ -13,7 +14,7 @@ const ListaProveedores = () => {
       const response = await ProveedorService.obtenerProveedores();
       setSuppliers(response.data);
     } catch (error) {
-      toast.error('Error al cargar los proveedores');
+      mostrarError(error, "Error al cargar los proveedores");
     }
   };
 
@@ -27,7 +28,7 @@ const ListaProveedores = () => {
       const response = await ProveedorService.buscarProveedores(search);
       setSuppliers(response.data);
     } catch (error) {
-      toast.error('Error en la búsqueda');
+      mostrarError(error, "Error en la búsqueda");
     }
   };
 
@@ -37,7 +38,7 @@ const ListaProveedores = () => {
       loadSuppliers();
       toast.success('Estado actualizado correctamente');
     } catch (error) {
-      toast.error('Error al actualizar el estado');
+      mostrarError(error, "Error al actualizar el estado");
     }
   };
 

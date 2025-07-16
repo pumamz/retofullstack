@@ -7,11 +7,11 @@ import InputNumber from '../../components/common/InputNumber';
 import SelectField from '../../components/common/SelectField';
 import FormButtons from '../../components/common/FormButtons';
 import FormTitle from '../../components/common/FormTitle';
+import { mostrarError } from '../../api/toast';
 
 const FormularioClientes = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
   const [cliente, setCliente] = useState({
     firstName: '',
     lastName: '',
@@ -26,14 +26,11 @@ const FormularioClientes = () => {
 
   const cargarCliente = useCallback(async () => {
     try {
-      setLoading(true);
       const response = await clienteService.obtenerClientePorId(id);
       setCliente(response);
     } catch (error) {
-      toast.error('Error al cargar el cliente');
+      mostrarError(error, 'Error al cargar el cliente');
       navigate('/clientes');
-    } finally {
-      setLoading(false);
     }
   }, [id, navigate]);
 
@@ -52,7 +49,6 @@ const FormularioClientes = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
       if (id) {
         await clienteService.actualizarCliente(id, cliente);
         toast.success('Cliente actualizado exitosamente');
@@ -62,9 +58,7 @@ const FormularioClientes = () => {
       }
       navigate('/clientes');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error al guardar el cliente');
-    } finally {
-      setLoading(false);
+      mostrarError(error, 'Error al guardar el cliente');
     }
   };
 
@@ -86,7 +80,6 @@ const FormularioClientes = () => {
               value={cliente[name]}
               type={type}
               onChange={handleChange}
-              disabled={loading}
               required
             />
           </div>
@@ -98,7 +91,6 @@ const FormularioClientes = () => {
             name="sex"
             value={cliente.sex}
             onChange={handleChange}
-            disabled={loading}
             required
             options={[
               { label: 'Masculino', value: 'M' },
@@ -120,13 +112,11 @@ const FormularioClientes = () => {
               onChange={handleChange}
               step={step}
               required
-              disabled={loading}
             />
           </div>
         ))}
 
         <FormButtons
-          loading={loading}
           onCancel={() => navigate('/clientes')}
         />
       </form>

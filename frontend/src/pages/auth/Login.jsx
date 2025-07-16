@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { mantenimientoService } from '../../services/mantenimientoService';
 import { toast } from "react-toastify";
+import { mostrarError } from '../../api/toast';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -24,7 +25,7 @@ const Login = () => {
         toast.error('Token no recibido');
       }
     } catch (error) {
-      toast.error(error.response?.data?.error || error.message || 'Error al iniciar sesión');
+      mostrarError(error, 'Algo salió mal')
     } finally {
       setLoading(false);
     }

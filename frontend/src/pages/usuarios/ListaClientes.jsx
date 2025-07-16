@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faEdit, faTrash, faSearch, faTimes, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { mostrarError } from "../../api/toast";
 
 const ListaClientes = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const ListaClientes = () => {
       const response = await clienteService.filtrarClientes(filtrosCompletos);
       setClients(response);
     } catch (error) {
-      toast.error("Error al cargar los clientes");
+      mostrarError(error, "Error al cargar los clientes");
     }
   }, [searchTerm, filtrosActivos]);
 
@@ -68,7 +69,7 @@ const ListaClientes = () => {
       toast.success("Estado actualizado correctamente");
       await loadClients();
     } catch (error) {
-      toast.error("Error al actualizar el estado");
+      mostrarError(error, "Error al actualizar el estado");
     }
   };
 
@@ -79,7 +80,7 @@ const ListaClientes = () => {
         await loadClients();
         toast.success("Cliente eliminado correctamente");
       } catch (error) {
-        toast.error("Error al eliminar el cliente");
+        mostrarError(error, "Error al eliminar el cliente");
       }
     }
   };

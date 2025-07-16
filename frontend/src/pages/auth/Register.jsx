@@ -9,12 +9,10 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [nombre, setNombre] = useState('');
     const [email, setEmail] = useState('');
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
             await authService.register(username, password, email, nombre);
             toast.success('¡Registro exitoso!');
@@ -22,7 +20,6 @@ const Register = () => {
         } catch (error) {
             mostrarError(error, 'Error en el registro');
         } finally {
-            setLoading(false);
         }
     };
 
@@ -81,9 +78,8 @@ const Register = () => {
                     <button
                         type="submit"
                         className="btn btn-primary w-100"
-                        disabled={loading}
                     >
-                        {loading ? 'Registrando...' : 'Registrarse'}
+                        Registrarse
                     </button>
                 </form>
                 <div className="text-center mt-3">

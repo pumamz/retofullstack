@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
+import { mostrarError } from '../../api/toast';
 
 const ListaMembresias = () => {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ const ListaMembresias = () => {
             const response = await membresiaService.obtenerMembresias();
             setMembresias(response);
         } catch (error) {
-            toast.error('Error al cargar las membresías');
+            mostrarError(error, 'Error al cargar las membresías');
         }
     };
 
@@ -30,7 +31,7 @@ const ListaMembresias = () => {
             const response = await membresiaService.buscarMembresias(searchTerm);
             setMembresias(response);
         } catch (error) {
-            toast.error('Error en la búsqueda');
+            mostrarError(error, 'Error en la búsqueda');
         }
     };
 
@@ -45,7 +46,7 @@ const ListaMembresias = () => {
             }
             loadMembresias();
         } catch (error) {
-            toast.error('Error al cambiar el estado de la membresía');
+            mostrarError(error, 'Error al cambiar el estado de la membresía');
         }
     };
 
@@ -56,7 +57,7 @@ const ListaMembresias = () => {
                 await loadMembresias();
                 toast.success('Membresía eliminada');
             } catch (error) {
-                toast.error('Error al eliminar la membresía');
+                mostrarError(error, 'Error al eliminar la membresía');
             }
         }
     };

@@ -5,6 +5,7 @@ import { Table, Button, Form, Row, Col, Badge, Modal, OverlayTrigger, Tooltip, C
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes, faFileInvoice, faFilter, } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { mostrarError } from "../../api/toast";
 
 const ListaVentas = () => {
     const navigate = useNavigate();
@@ -23,8 +24,7 @@ const ListaVentas = () => {
             const response = await VentaService.listarVentas();
             setVentas(response.data);
         } catch (error) {
-            console.error("Error al cargar ventas:", error);
-            toast.error("Error al cargar las ventas");
+            mostrarError(error, "Error al cargar las ventas");
         }
     };
 
@@ -38,8 +38,7 @@ const ListaVentas = () => {
             );
             setVentas(response.data);
         } catch (error) {
-            console.error("Error en la búsqueda:", error);
-            toast.error("Error al buscar ventas");
+            mostrarError(error, "Error al buscar ventas");
         }
     };
 
@@ -57,8 +56,7 @@ const ListaVentas = () => {
                 toast.success("Venta cancelada exitosamente");
                 cargarVentas();
             } catch (error) {
-                console.error("Error al cancelar la venta:", error);
-                toast.error("Error al cancelar la venta");
+                mostrarError(error, "Error al cancelar la venta");
             }
         }
     };
@@ -68,8 +66,7 @@ const ListaVentas = () => {
             const response = await VentaService.obtenerVentaPorNumero(invoiceNumber);
             setVentaSeleccionada(response.data);
         } catch (error) {
-            console.error("Error al obtener detalles:", error);
-            toast.error("Error al cargar los detalles");
+            mostrarError(error, "Error al cargar los detalles");
         }
     };
 
@@ -93,7 +90,7 @@ const ListaVentas = () => {
                         </div>
                         <Button
                             variant="success"
-                            onClick={() => navigate('/membresias/ventas/crear')}>
+                            onClick={() => navigate('/productos/ventas/crear')}>
                             <FontAwesomeIcon icon={faPlus} className="me-2" />
                             Nueva Venta
                         </Button>

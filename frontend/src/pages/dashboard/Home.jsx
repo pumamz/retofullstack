@@ -1,42 +1,16 @@
-import React, { useEffect, useState }from 'react';
-import { Card, Row, Col, Button, Spinner } from 'react-bootstrap';
+import React from 'react';
+import { Card, Row, Col, Button } from 'react-bootstrap';
 import { FaUsers, FaDumbbell, FaBox, FaDollarSign, FaTruck, FaUserPlus, FaPlusCircle, FaClipboardList } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import '../../styles/Pastel.css';
-import { DashboardService } from '../../services/dashboardService';
 
 const Home = () => {
   const navigate = useNavigate();
-
-  const [productosStock, setProductosStock] = useState(null);
-  const [ventasMes, setVentasMes] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchKPIs = async () => {
-      setLoading(true);
-      try {
-        const [stock, ventas] = await Promise.all([
-          DashboardService.getProductosStock(),
-          DashboardService.getVentasMes()
-        ]);
-        setProductosStock(stock);
-        setVentasMes(ventas);
-      } catch (e) {
-        setProductosStock('Error');
-        setVentasMes('Error');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchKPIs();
-  }, []);
 
   return (
     <div className="container mt-4">
       <h2 className="mb-4 pastel-title">Panel de Control - GymSystem</h2>
 
-      {/* KPIs */}
       <Row className="mb-4">
         <Col md={3} className="mb-3">
           <Card className="pastel-card pastel-blue text-center">
@@ -61,9 +35,7 @@ const Home = () => {
             <Card.Body>
               <FaBox size={30} className="mb-2" />
               <Card.Title>Productos en stock</Card.Title>
-              <Card.Text>
-                {loading ? <Spinner animation="border" size="sm" /> : productosStock}
-              </Card.Text>
+              <Card.Text>-</Card.Text>
             </Card.Body>
           </Card>
         </Col>
@@ -72,15 +44,12 @@ const Home = () => {
             <Card.Body>
               <FaDollarSign size={30} className="mb-2" />
               <Card.Title>Ventas del mes</Card.Title>
-              <Card.Text>
-                {loading ? <Spinner animation="border" size="sm" /> : `$${ventasMes}`}
-              </Card.Text>
+              <Card.Text>-</Card.Text>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* Accesos rápidos */}
       <Row className="mb-4">
         <Col md={2} className="mb-2">
           <Button className="pastel-btn pastel-blue w-100" onClick={() => navigate('clientes/nuevo')}>

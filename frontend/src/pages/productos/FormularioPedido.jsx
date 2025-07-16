@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
 import { PedidoService } from '../../services/pedidoService';
+import { mostrarError } from '../../api/toast';
 
 const FormularioPedido = () => {
     const navigate = useNavigate();
@@ -20,8 +21,6 @@ const FormularioPedido = () => {
         quantity: 1,
         unitPrice: 0
     });
-    const [cargando, setCargando] = useState(true);
-    const [error, setError] = useState(null);
 
     useEffect(() => {
         cargarDatosIniciales();
@@ -29,16 +28,12 @@ const FormularioPedido = () => {
 
     const cargarDatosIniciales = async () => {
         try {
-            setCargando(true);
             const response = await PedidoService.obtenerDatosPedido();
             console.log("Datos cargados:", response.data);
             setProveedores(response.data.suppliers || []);
             setProductos(response.data.products || []);
         } catch (error) {
             console.error('Error al cargar datos:', error);
-            setError('Error al cargar los datos iniciales');
-        } finally {
-            setCargando(false);
         }
     };
 
@@ -111,7 +106,7 @@ const FormularioPedido = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (pedido.details.length === 0) {
-            toast.error('Debe agregar al menos un producto al pedido');
+            mostrarError('Debe agregar al menos un producto al pedido');
             return;
         }
 
@@ -126,30 +121,13 @@ const FormularioPedido = () => {
             toast.success('Pedido creado exitosamente');
             navigate('/productos/pedidos');
         } catch (error) {
-            console.error('Error al registrar pedido:', error);
-            toast.error('Error al registrar el pedido');
+            mostrarError(error, 'Error al registrar el pedido');
         }
     };
-
-
-    if (cargando) {
-        return (
-            <div className="container mt-4 text-center">
-                <div className="spinner-border" role="status">
-                    <span className="visually-hidden">Cargando...</span>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="container mt-4">
             <h2>Nuevo Pedido</h2>
-            {error && (
-                <div className="alert alert-danger" role="alert">
-                    {error}
-                </div>
-            )}
 
             <div className="row mb-3">
                 <div className="col-md-6">
