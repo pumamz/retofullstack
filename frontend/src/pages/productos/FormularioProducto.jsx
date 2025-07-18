@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ProductoService } from '../../services/productoService';
+import { productoService } from '../../services/productoService';
 import { toast } from 'react-toastify';
 import InputText from '../../components/common/InputText';
 import InputNumber from '../../components/common/InputNumber';
@@ -26,8 +26,8 @@ console.log("ID en FormularioClientes:", id);
 
   const cargarProducto = useCallback(async () => {
     try {
-      const response = await ProductoService.obtenerProducto(id);
-      setProducto(response.data);
+      const response = await productoService.listarProductos(id);
+      setProducto(response);
     } catch (error) {
       mostrarError(error, 'Error al cargar el producto');
       navigate('/productos');
@@ -50,10 +50,10 @@ console.log("ID en FormularioClientes:", id);
     e.preventDefault();
     try {
       if (id) {
-        await ProductoService.actualizarProducto(id, producto);
+        await productoService.actualizarProducto(id, producto);
         toast.success('Producto actualizado exitosamente');
       } else {
-        await ProductoService.crearProducto(producto);
+        await productoService.crearProducto(producto);
         toast.success('Producto creado exitosamente');
       }
       navigate('/productos');

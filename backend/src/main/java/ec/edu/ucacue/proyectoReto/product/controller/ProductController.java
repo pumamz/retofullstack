@@ -2,6 +2,7 @@ package ec.edu.ucacue.proyectoReto.product.controller;
 
 import ec.edu.ucacue.proyectoReto.product.model.Product;
 import ec.edu.ucacue.proyectoReto.product.service.ProductService;
+import ec.edu.ucacue.proyectoReto.users.model.Supplier;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,14 +28,14 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductById(id));
     }
 
+    @GetMapping("/enabled")
+    public ResponseEntity<List<Product>> getEnabledProducts() {
+        return ResponseEntity.ok(productService.listEnabledProducts());
+    }
+
     @GetMapping("/barcode/{barcode}")
     public ResponseEntity<Product> getProductByBarcode(@PathVariable String barcode) {
         return ResponseEntity.ok(productService.findByBarcode(barcode));
-    }
-
-    @GetMapping("/low-stock")
-    public ResponseEntity<List<Product>> getLowStockProducts() {
-        return ResponseEntity.ok(productService.findLowStockProducts());
     }
 
     @PostMapping
@@ -57,10 +58,15 @@ public class ProductController {
         return ResponseEntity.ok(productService.saveProduct(existingProduct));
     }
 
+    @PatchMapping("/{id}/enable")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id, @RequestParam boolean enabled) {
+        productService.toggleEnabled(id, enabled);
+        return ResponseEntity.ok().build();
+    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
-        productService.deactivateProduct(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/search")
+    public ResponseEntity<List<Product>> searchSuppliers(
+            @RequestParam(required = false) String searchTerm) {
+        return ResponseEntity.ok(productService.searchProducts(searchTerm));
     }
 }

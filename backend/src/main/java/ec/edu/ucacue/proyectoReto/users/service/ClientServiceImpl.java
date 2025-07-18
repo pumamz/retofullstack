@@ -23,6 +23,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public List<Client> listEnabledClients() {
+        return clientRepository.findClientsByEnabledTrue();
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Client findClientById(Long id) {
         return clientRepository.findById(id)
@@ -38,18 +43,10 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public void deleteClientById(Long id) {
-        Client client = findClientById(id);
-        client.setEnabled(false);
-        clientRepository.save(client);
-    }
-
-    @Override
-    @Transactional
     public void editClient(Client client) {
         Client existingClient = findClientById(client.getId());
         validateClientData(client);
-        
+        existingClient.setDni(client.getDni());
         existingClient.setFirstName(client.getFirstName());
         existingClient.setLastName(client.getLastName());
         existingClient.setEmail(client.getEmail());

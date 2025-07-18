@@ -19,6 +19,5 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     Optional<Client> findByDni(String dni);
 
-    List<Client> findByEnabled(boolean enabled);
-
+    List<Client> findClientsByEnabledTrue();
 }

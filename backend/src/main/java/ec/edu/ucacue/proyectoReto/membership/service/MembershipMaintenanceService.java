@@ -8,16 +8,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
 public class MembershipMaintenanceService {
 
-    @Autowired
-    private MembershipSaleRepository membershipSaleRepository;
+    private final MembershipSaleRepository membershipSaleRepository;
 
-    @Autowired
-    private ClientRepository clientRepository;
+    private final ClientRepository clientRepository;
+
+    public MembershipMaintenanceService(MembershipSaleRepository membershipSaleRepository, ClientRepository clientRepository) {
+        this.membershipSaleRepository = membershipSaleRepository;
+        this.clientRepository = clientRepository;
+    }
 
     public void updateMembershipStatuses() {
         List<MembershipSale> activeSales = membershipSaleRepository.findAllByStatus("Active");
@@ -27,16 +31,16 @@ public class MembershipMaintenanceService {
         for (MembershipSale sale : activeSales) {
             Client client = sale.getClient();
 
-            // Actualiza estado si la fecha de fin ha pasado
             if (sale.getEndDate().isBefore(today)) {
                 sale.setStatus("Expired");
                 client.setMembershipStatus("Expired");
                 client.setRemainingDays(0);
             } else {
-                int remainingDays = today.until(sale.getEndDate()).getDays();
-                client.setRemainingDays(remainingDays);
+                long remainingDays = ChronoUnit.DAYS.between(today, sale.getEndDate());
+                client.setRemainingDays((int) remainingDays);
                 client.setMembershipStatus("Active");
             }
+
             client.setMembershipType(sale.getMembership().getName());
 
             clientRepository.save(client);

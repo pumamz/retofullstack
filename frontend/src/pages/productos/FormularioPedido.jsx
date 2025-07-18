@@ -1,300 +1,280 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { toast } from "react-toastify";
+import { toast } from 'react-toastify';
+import { proveedorService } from '../../services/proveedorService';
+import { productoService } from '../../services/productoService';
 import { PedidoService } from '../../services/pedidoService';
 import { mostrarError } from '../../api/toast';
+import SelectField from '../../components/common/SelectField';
+import FormButtons from '../../components/common/FormButtons';
+import FormTitle from '../../components/common/FormTitle';
 
 const FormularioPedido = () => {
-    const navigate = useNavigate();
-    const [proveedores, setProveedores] = useState([]);
-    const [productos, setProductos] = useState([]);
-    const [pedido, setPedido] = useState({
-        supplier: { id: '' },
-        details: [],
-        notes: '',
-        expectedDeliveryDate: new Date(),
-        status: 'PENDIENTE'
-    });
+  const navigate = useNavigate();
 
-    const [productoSeleccionado, setProductoSeleccionado] = useState({
-        product: { id: '' },
+  const [proveedores, setProveedores] = useState([]);
+  const [productos, setProductos] = useState([]);
+
+  const [pedido, setPedido] = useState({
+    supplier: { id: '' },
+    expectedDeliveryDate: '',
+    notes: '',
+    status: 'PENDIENTE',
+    details: []
+  });
+
+  const [item, setItem] = useState({
+    product: { id: '' },
+    quantity: 1,
+    unitPrice: 0
+  });
+
+  const cargarProveedores = useCallback(async () => {
+    try {
+      const res = await proveedorService.listarProveedoresActivos();
+      setProveedores(res.map(p => ({ value: p.id, label: `${p.firstName} ${p.lastName}` })));
+    } catch (error) {
+      mostrarError(error, 'Error al cargar proveedores');
+      navigate('/productos/pedidos');
+    }
+  }, [navigate]);
+
+  const cargarProductos = useCallback(async () => {
+    try {
+      const res = await productoService.listarProductosActivos();
+      setProductos(res);
+    } catch (error) {
+      mostrarError(error, 'Error al cargar productos');
+      navigate('/productos/pedidos');
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    cargarProveedores();
+    cargarProductos();
+  }, [cargarProveedores, cargarProductos]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'supplierId') {
+      setPedido(prev => ({ ...prev, supplier: { id: value } }));
+    } else {
+      setPedido(prev => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handleItemChange = (e) => {
+    const { name, value } = e.target;
+    setItem(prev => ({ ...prev, [name]: name === 'quantity' ? Number(value) : value }));
+  };
+
+  const handleProductoSeleccionado = (e) => {
+    const selected = productos.find(p => p.id === Number(e.target.value));
+    if (selected) {
+      setItem({
+        product: { id: selected.id },
         quantity: 1,
-        unitPrice: 0
+        unitPrice: selected.priceBuy
+      });
+    }
+  };
+
+  const agregarProducto = () => {
+    if (!item.product.id || item.quantity <= 0) return;
+
+    setPedido(prev => ({
+      ...prev,
+      details: [...prev.details, item]
+    }));
+
+    setItem({
+      product: { id: '' },
+      quantity: 1,
+      unitPrice: 0
     });
+  };
 
-    useEffect(() => {
-        cargarDatosIniciales();
-    }, []);
+  const eliminarProducto = (index) => {
+    setPedido(prev => ({
+      ...prev,
+      details: prev.details.filter((_, i) => i !== index)
+    }));
+  };
 
-    const cargarDatosIniciales = async () => {
-        try {
-            const response = await PedidoService.obtenerDatosPedido();
-            console.log("Datos cargados:", response.data);
-            setProveedores(response.data.suppliers || []);
-            setProductos(response.data.products || []);
-        } catch (error) {
-            console.error('Error al cargar datos:', error);
-        }
-    };
+  const calcularTotal = () =>
+    pedido.details.reduce((acc, d) => acc + d.quantity * d.unitPrice, 0).toFixed(2);
 
-    const handleNotesChange = (e) => {
-        setPedido(prev => ({
-            ...prev,
-            notes: e.target.value
-        }));
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const handleProveedorChange = (e) => {
-        setPedido(prev => ({
-            ...prev,
-            supplier: { id: e.target.value }
-        }));
-    };
+    if (pedido.details.length === 0) {
+      mostrarError('Debe agregar al menos un producto');
+      return;
+    }
 
-    const handleProductoChange = (e) => {
-        const producto = productos.find(p => p.id === Number(e.target.value));
-        setProductoSeleccionado({
-            product: { id: producto.id },
-            quantity: 1,
-            unitPrice: producto.priceBuy
-        });
-    };
+    try {
+      const payload = {
+        ...pedido,
+        supplier: { id: parseInt(pedido.supplier.id) },
+        details: pedido.details.map(d => ({
+          product: { id: d.product.id },
+          quantity: d.quantity,
+          unitPrice: d.unitPrice
+        }))
+      };
+      await PedidoService.crearPedido(payload);
+      toast.success('Pedido registrado exitosamente');
+      navigate('/productos/pedidos');
+    } catch (error) {
+      mostrarError(error, 'Error al registrar el pedido');
+    }
+  };
 
-    const handleCantidadChange = (e) => {
-        setProductoSeleccionado(prev => ({
-            ...prev,
-            quantity: Number(e.target.value)
-        }));
-    };
+  return (
+    <div className="container mt-4">
+      <FormTitle title="Nuevo Pedido" />
 
-    const handlePrecioChange = (e) => {
-        setProductoSeleccionado(prev => ({
-            ...prev,
-            unitPrice: Number(e.target.value)
-        }));
-    };
+      <form onSubmit={handleSubmit} className="row g-3">
+        <div className="col-md-6">
+          <SelectField
+            label="Proveedor"
+            name="supplierId"
+            value={pedido.supplier.id}
+            options={proveedores}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-    const agregarProducto = () => {
-        if (productoSeleccionado.product.id && productoSeleccionado.quantity > 0) {
-            setPedido(prev => ({
-                ...prev,
-                details: [...prev.details, productoSeleccionado]
-            }));
-            setProductoSeleccionado({
-                product: { id: '' },
-                quantity: 1,
-                unitPrice: 0
-            });
-        }
-    };
+        <div className="col-md-6">
+          <label className="form-label">Fecha de Entrega Esperada</label>
+          <input
+            type="date"
+            name="expectedDeliveryDate"
+            className="form-control"
+            value={pedido.expectedDeliveryDate}
+            onChange={handleChange}
+            required
+          />
+        </div>
 
-    const eliminarProducto = (index) => {
-        setPedido((prev) => ({
-            ...prev,
-            details: prev.details.filter((_, i) => i !== index)
-        }));
-    };
+        <div className="col-md-12">
+          <label className="form-label">Notas</label>
+          <textarea
+            className="form-control"
+            name="notes"
+            value={pedido.notes}
+            onChange={handleChange}
+            rows="2"
+            placeholder="Notas adicionales"
+          />
+        </div>
 
-    const handleDeliveryDateChange = (e) => {
-        setPedido(prev => ({
-            ...prev,
-            expectedDeliveryDate: e.target.value
-        }));
-    };
-
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (pedido.details.length === 0) {
-            mostrarError('Debe agregar al menos un producto al pedido');
-            return;
-        }
-
-        try {
-            const pedidoData = {
-                ...pedido,
-                totalAmount: pedido.details.reduce(
-                    (total, detail) => total + (detail.quantity * detail.unitPrice), 0
-                )
-            };
-            await PedidoService.crearPedido(pedidoData);
-            toast.success('Pedido creado exitosamente');
-            navigate('/productos/pedidos');
-        } catch (error) {
-            mostrarError(error, 'Error al registrar el pedido');
-        }
-    };
-
-    return (
-        <div className="container mt-4">
-            <h2>Nuevo Pedido</h2>
-
-            <div className="row mb-3">
-                <div className="col-md-6">
-                    <label className="form-label">Fecha de Entrega Esperada</label>
-                    <input
-                        type="date"
-                        className="form-control"
-                        value={pedido.expectedDeliveryDate}
-                        onChange={handleDeliveryDateChange}
-                    />
-                </div>
-                <div className="col-md-6">
-                    <label className="form-label">Notas</label>
-                    <textarea
-                        className="form-control"
-                        value={pedido.notes}
-                        onChange={handleNotesChange}
-                        rows="3"
-                        placeholder="Notas adicionales para el pedido..."
-                    />
-                </div>
+        <div className="col-md-12 border rounded p-3">
+          <h5>Agregar Producto</h5>
+          <div className="row g-2 align-items-end">
+            <div className="col-md-5">
+              <label className="form-label">Producto</label>
+              <select
+                className="form-select"
+                value={item.product.id}
+                onChange={handleProductoSeleccionado}
+              >
+                <option value="">Seleccione un producto</option>
+                {productos.map(p => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} - ${p.priceBuy?.toFixed(2)} (Stock: {p.stock})
+                  </option>
+                ))}
+              </select>
             </div>
 
+            <div className="col-md-3">
+              <label className="form-label">Cantidad</label>
+              <input
+                type="number"
+                name="quantity"
+                className="form-control"
+                min="1"
+                value={item.quantity}
+                onChange={handleItemChange}
+              />
+            </div>
 
-            <form onSubmit={handleSubmit}>
-                <div className="row">
-                    <div className="col-md-6 mb-3">
-                        <label className="form-label">Proveedor</label>
-                        <select
-                            className="form-select"
-                            value={pedido.supplier.id}
-                            onChange={handleProveedorChange}
-                            required
-                        >
-                            <option value="">Seleccione un proveedor</option>
-                            {proveedores.map(proveedor => (
-                                <option key={proveedor.id} value={proveedor.id}>
-                                    {proveedor.firstName}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
+            <div className="col-md-2">
+              <label className="form-label">Precio</label>
+              <input
+                type="number"
+                className="form-control"
+                value={item.unitPrice}
+                readOnly
+              />
+            </div>
 
-                <div className="card mb-3">
-                    <div className="card-body">
-                        <h5 className="card-title">Agregar Productos</h5>
-                        <div className="row">
-                            <div className="col-md-4">
-                                <select
-                                    className="form-select mb-2"
-                                    value={productoSeleccionado.product.id}
-                                    onChange={handleProductoChange}
-                                >
-                                    <option value="">Seleccione un producto</option>
-                                    {productos.map((producto) => (
-                                        <option key={producto.id} value={producto.id}>
-                                            {producto.name} - Stock: {producto.stock}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div className="col-md-3">
-                                <input
-                                    type="number"
-                                    className="form-control mb-2"
-                                    placeholder="Cantidad"
-                                    min="1"
-                                    value={productoSeleccionado.quantity}
-                                    onChange={handleCantidadChange}
-                                />
-                            </div>
-                            <div className="col-md-3">
-                                <input
-                                    type="number"
-                                    className="form-control"
-                                    placeholder="Precio unitario"
-                                    step="0.01"
-                                    min="0"
-                                    value={productoSeleccionado.unitPrice}
-                                    onChange={handlePrecioChange}
-                                    readOnly
-                                />
-                            </div>
-                            <div className="col-md-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-success w-100"
-                                    onClick={agregarProducto}
-                                >
-                                    Agregar
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="table-responsive">
-                    <table className="table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Precio Unitario</th>
-                                <th>Subtotal</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pedido.details.map((detalle, index) => {
-                                const producto = productos.find(
-                                    (p) => p.id === detalle.product.id
-                                );
-                                return (
-                                    <tr key={index}>
-                                        <td>{producto?.name}</td>
-                                        <td>{detalle.quantity}</td>
-                                        <td>${detalle.unitPrice}</td>
-                                        <td>${(detalle.quantity * detalle.unitPrice).toFixed(2)}</td>
-                                        <td>
-                                            <button
-                                                type="button"
-                                                className="btn btn-danger btn-sm"
-                                                onClick={() => eliminarProducto(index)}
-                                            >
-                                                Eliminar
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colSpan="3" className="text-end">
-                                    <strong>Total:</strong>
-                                </td>
-                                <td>
-                                    ${pedido.details.reduce((total, detalle) =>
-                                        total + (detalle.quantity * detalle.unitPrice), 0
-                                    ).toFixed(2)}
-                                </td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
-                <div className="d-flex justify-content-end gap-2">
-                    <button
-                        type="button"
-                        className="btn btn-secondary"
-                        onClick={() => navigate('/productos/pedidos')}
-                    >
-                        Cancelar
-                    </button>
-                    <button
-                        type="submit"
-                        className="btn btn-success"
-                        disabled={pedido.details.length === 0}
-                    >
-                        Registrar Pedido
-                    </button>
-                </div>
-            </form>
+            <div className="col-md-2">
+              <button
+                type="button"
+                className="btn btn-success w-100"
+                onClick={agregarProducto}
+              >
+                Agregar
+              </button>
+            </div>
+          </div>
         </div>
-    );
+
+        {pedido.details.length > 0 && (
+          <div className="col-md-12">
+            <table className="table table-bordered mt-3">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Cantidad</th>
+                  <th>Precio</th>
+                  <th>Subtotal</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pedido.details.map((d, idx) => {
+                  const p = productos.find(p => p.id === d.product.id);
+                  return (
+                    <tr key={idx}>
+                      <td>{p?.name}</td>
+                      <td>{d.quantity}</td>
+                      <td>${d.unitPrice}</td>
+                      <td>${(d.quantity * d.unitPrice).toFixed(2)}</td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-danger"
+                          onClick={() => eliminarProducto(idx)}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colSpan="3" className="text-end"><strong>Total:</strong></td>
+                  <td colSpan="2"><strong>${calcularTotal()}</strong></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+
+        <FormButtons
+          onCancel={() => navigate('/productos/pedidos')}
+          disabled={!pedido.supplier.id || !pedido.expectedDeliveryDate || pedido.details.length === 0}
+        />
+      </form>
+    </div>
+  );
 };
 
 export default FormularioPedido;

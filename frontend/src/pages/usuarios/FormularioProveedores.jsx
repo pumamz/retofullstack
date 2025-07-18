@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ProveedorService } from '../../services/proveedorService';
+import { proveedorService } from '../../services/proveedorService';
 import { toast } from 'react-toastify';
 import InputText from '../../components/common/InputText';
 import FormTitle from '../../components/common/FormTitle';
@@ -22,8 +22,8 @@ const FormularioProveedores = () => {
 
   const cargarProveedor = useCallback(async () => {
     try {
-      const response = await ProveedorService.obtenerProveedorPorId(id);
-      setProveedor(response.data);
+      const response = await proveedorService.obtenerProveedorPorId(id);
+      setProveedor(response);
     } catch (error) {
       mostrarError(error, 'Error al cargar el proveedor');
       navigate('/proveedores')
@@ -46,10 +46,10 @@ const FormularioProveedores = () => {
     e.preventDefault();
     try {
       if (id) {
-        await ProveedorService.actualizarProveedor(id, proveedor);
+        await proveedorService.actualizarProveedor(id, proveedor);
         toast.success('Proveedor actualizado exitosamente');
       } else {
-        await ProveedorService.crearProveedor(proveedor);
+        await proveedorService.crearProveedor(proveedor);
         toast.success('Proveedor creado exitosamente');
       }
       navigate('/proveedores');

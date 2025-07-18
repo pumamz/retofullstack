@@ -9,17 +9,13 @@ public interface MembershipService {
 
     List<Membership> getAllMemberships();
 
-    List<Membership> getActiveMemberships();
+    List<Membership> getEnabledMemberships();
 
     Membership getMembershipById(Long id);
 
     Membership updateMembership(Long id, Membership membership);
 
-    void deleteMembership(Long id);
-
     List<Membership> searchMemberships(String searchTerm);
 
-    void deactivateMembership(Long id);
-
-    void activateMembership(Long id);
+    void toggleEnabled(Long id, boolean enabled);
 }

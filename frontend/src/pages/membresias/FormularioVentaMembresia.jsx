@@ -14,7 +14,6 @@ const FormularioVentaMembresia = () => {
   const { id } = useParams();
   const [clientes, setClientes] = useState([]);
   const [membresias, setMembresias] = useState([]);
-
   const [venta, setVenta] = useState({
     client: { id: '' },
     membership: { id: '' },
@@ -30,7 +29,7 @@ const FormularioVentaMembresia = () => {
 
   const cargarClientes = useCallback(async () => {
     try {
-      const res = await clienteService.obtenerClientes();
+      const res = await clienteService.listarClientesActivos();
       setClientes(res.map(c => ({
         value: c.id,
         label: `${c.firstName} ${c.lastName}`
@@ -43,7 +42,7 @@ const FormularioVentaMembresia = () => {
 
   const cargarMembresias = useCallback(async () => {
     try {
-      const res = await membresiaService.obtenerMembresias();
+      const res = await membresiaService.obtenerMembresiasActivas();
       setMembresias(res.map(m => ({
         value: m.id,
         label: `${m.name} - $${m.price?.toFixed(2)}`
@@ -79,7 +78,6 @@ const FormularioVentaMembresia = () => {
       }));
     }
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();

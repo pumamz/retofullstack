@@ -7,17 +7,16 @@ import java.util.List;
 public interface SupplierService {
     List<Supplier> listSupplier();
 
+    List<Supplier> listEnabledSuppliers();
+
     Supplier findSupplierById(Long id);
 
     void createSupplier(Supplier supplier);
 
-    void deleteSupplierById(Long id);
-
     void editSupplier(Supplier supplier);
 
-    List<Supplier> searchSuppliers(String name, String dni);
+    List<Supplier> searchSuppliers(String search);
 
     void toggleEnabled(Long id, boolean enabled);
 
-    List<Supplier> findByEnabled(boolean enabled);
 }

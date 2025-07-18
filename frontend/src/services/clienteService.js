@@ -1,7 +1,7 @@
 import api from '../api/axios';
 
 export const clienteService = {
-  obtenerClientes: async () => {
+  listarClientes: async () => {
     const response = await api.get('/clients');
     return response.data;
   },
@@ -21,14 +21,9 @@ export const clienteService = {
     return response.data;
   },
 
-  eliminarCliente: async (id) => {
-    const response = await api.delete(`/clients/${id}`);
-    return response.data;
-  },
-
   buscarClientes: async (searchTerm) => {
     if (!searchTerm || searchTerm.trim() === '') {
-      return await clienteService.obtenerClientes();
+      return await clienteService.listarClientes();
     }
     const response = await api.get('/clients/search', {
       params: { searchTerm: searchTerm.trim() },
@@ -51,10 +46,10 @@ export const clienteService = {
     }
     
     if (enabled === undefined && !membershipType && !membershipStatus) {
-      return await clienteService.obtenerClientes();
+      return await clienteService.listarClientes();
     }
     
-    const todosClientes = await clienteService.obtenerClientes();
+    const todosClientes = await clienteService.listarClientes();
     
     return todosClientes.filter(client => {
       let cumpleFiltros = true;
@@ -75,8 +70,8 @@ export const clienteService = {
     });
   },
 
-  obtenerClientesPorEstado: async (enabled) => {
-    const todosClientes = await clienteService.obtenerClientes();
-    return todosClientes.filter(client => client.enabled === enabled);
+    listarClientesActivos: async () => {
+    const response = await api.get('/clients/enabled');
+    return response.data;
   },
 };

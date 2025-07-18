@@ -39,7 +39,7 @@ public class Product implements Serializable {
     private int stock;
 
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean enabled = true;
 
     @Column(name = "minimum_stock")
     private int minimumStock;

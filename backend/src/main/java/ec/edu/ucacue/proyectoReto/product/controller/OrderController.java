@@ -27,14 +27,6 @@ public class OrderController {
         this.supplierService = supplierService;
     }
 
-    @GetMapping("/data")
-    public ResponseEntity<Map<String, Object>> getOrderData() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("products", productService.listProducts());
-        response.put("suppliers", supplierService.listSupplier());
-        return ResponseEntity.ok(response);
-    }
-
     @PostMapping
     public ResponseEntity<Order> createOrder(@Valid @RequestBody Order order) {
         return ResponseEntity.ok(orderService.registerOrder(order));

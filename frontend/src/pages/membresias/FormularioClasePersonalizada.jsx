@@ -33,7 +33,7 @@ const FormularioClasePersonalizada = () => {
 
   const cargarClientes = useCallback(async () => {
   try {
-    const res = await clienteService.obtenerClientes();
+    const res = await clienteService.listarClientesActivos();
     setClientes(res.map(c => ({
       value: c.id,
       label: `${c.firstName} ${c.lastName}`

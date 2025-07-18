@@ -33,23 +33,10 @@ export const membresiaService = {
     return response.data;
   },
 
-  eliminarMembresia: async (id) => {
-    const response = await api.delete(`/memberships/${id}`);
-    return response.data;
-  },
-
-  activarMembresia: async (id) => {
-    const response = await api.patch(`/memberships/${id}/activate`);
-    return response.data;
-  },
-
-  desactivarMembresia: async (id) => {
-    const response = await api.patch(`/memberships/${id}/deactivate`);
-    return response.data;
-  },
-
-  actualizarMembresiaEstado: async () => {
-    const response = await api.get(`/memberships/update-status`);
+  cambiarEstado: async (id, enabled) => {
+    const response = await api.patch(`/memberships/${id}/enable`, null, {
+      params: { enabled },
+    });
     return response.data;
   }
 };

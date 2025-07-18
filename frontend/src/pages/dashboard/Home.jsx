@@ -52,7 +52,7 @@ const Home = () => {
 
       <Row className="mb-4">
         <Col md={2} className="mb-2">
-          <Button className="pastel-btn pastel-blue w-100" onClick={() => navigate('clientes/nuevo')}>
+          <Button className="pastel-btn pastel-blue w-100" onClick={() => navigate('clientes/crear')}>
             <FaUserPlus className="me-2" /> Nuevo Cliente
           </Button>
         </Col>
@@ -62,17 +62,17 @@ const Home = () => {
           </Button>
         </Col>
         <Col md={2} className="mb-2">
-          <Button className="pastel-btn pastel-yellow w-100" onClick={() => navigate('/productos/ventas/vender')}>
+          <Button className="pastel-btn pastel-yellow w-100" onClick={() => navigate('/productos/ventas/crear')}>
             <FaDollarSign className="me-2" /> Vender Producto
           </Button>
         </Col>
         <Col md={2} className="mb-2">
-          <Button className="pastel-btn pastel-pink w-100" onClick={() => navigate('/productos/pedidos/pedir')}>
+          <Button className="pastel-btn pastel-pink w-100" onClick={() => navigate('/productos/pedidos/crear')}>
             <FaTruck className="me-2" /> Pedir Producto
           </Button>
         </Col>
         <Col md={2} className="mb-2">
-          <Button className="pastel-btn pastel-gray w-100" onClick={() => navigate('/membresias/ventas/vender')}>
+          <Button className="pastel-btn pastel-gray w-100" onClick={() => navigate('/membresias/ventas/crear')}>
             <FaDumbbell className="me-2" /> Vender Membresía
           </Button>
         </Col>

@@ -1,42 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { ProveedorService } from '../../services/proveedorService';
-import { Table, Button, Form, InputGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { mostrarError } from '../../api/toast';
+import React, { useState, useEffect, useCallback } from "react";
+import { proveedorService } from "../../services/proveedorService";
+import { Table, Button, Form, InputGroup, Row, Col } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faEdit, faSearch, faTimes, } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
+import { mostrarError } from "../../api/toast";
 
 const ListaProveedores = () => {
+  const navigate = useNavigate();
   const [suppliers, setSuppliers] = useState([]);
-  const [search, setSearch] = useState({ name: '', dni: '' });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [mostrarInactivos, setMostrarInactivos] = useState(false);
 
-  const loadSuppliers = async () => {
+
+  const loadSuppliers = useCallback(async (term = "", inactivos = false) => {
     try {
-      const response = await ProveedorService.obtenerProveedores();
-      setSuppliers(response.data);
+      const response = await proveedorService.buscarProveedores(term);
+      const filtrados = response.filter(p => p.enabled === !inactivos);
+      setSuppliers(filtrados);
     } catch (error) {
       mostrarError(error, "Error al cargar los proveedores");
     }
-  };
-
-  useEffect(() => {
-    loadSuppliers();
   }, []);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await ProveedorService.buscarProveedores(search);
-      setSuppliers(response.data);
-    } catch (error) {
-      mostrarError(error, "Error en la búsqueda");
-    }
+  useEffect(() => {
+    loadSuppliers(searchTerm, mostrarInactivos);
+  }, [searchTerm, mostrarInactivos, loadSuppliers]);
+
+  const limpiarBusqueda = async () => {
+    setSearchTerm("");
+    await loadSuppliers("", mostrarInactivos);
   };
 
   const handleToggleStatus = async (id, currentStatus) => {
     try {
-      await ProveedorService.cambiarEstado(id, !currentStatus);
-      loadSuppliers();
-      toast.success('Estado actualizado correctamente');
+      await proveedorService.cambiarEstado(id, !currentStatus);
+      toast.success("Estado actualizado correctamente");
+      await loadSuppliers(searchTerm, mostrarInactivos);
     } catch (error) {
       mostrarError(error, "Error al actualizar el estado");
     }
@@ -44,102 +45,103 @@ const ListaProveedores = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Listado de Proveedores</h2>
+      <h2>Lista de proveedores</h2>
+      <br />
+      <Form className="mb-4">
+        <Row>
+          <Col md={6}>
+            <InputGroup>
+              <Form.Control
+                placeholder="Buscar por nombre o DNI"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Button variant="outline-primary">
+                <FontAwesomeIcon icon={faSearch} />
+              </Button>
+            </InputGroup>
+          </Col>
 
-      <Form onSubmit={handleSearch} className="mb-4">
-        <div className="row">
-          <div className="col-md-4">
-            <InputGroup>
-              <Form.Control
-                placeholder="Buscar por nombre"
-                value={search.name}
-                onChange={(e) => setSearch({ ...search, name: e.target.value })}
-              />
-            </InputGroup>
-          </div>
-          <div className="col-md-4">
-            <InputGroup>
-              <Form.Control
-                placeholder="Buscar por DNI"
-                value={search.dni}
-                onChange={(e) => setSearch({ ...search, dni: e.target.value })}
-              />
-            </InputGroup>
-          </div>
-          <div className="col-md-4">
-            <Button type="submit" variant="primary" className="me-2">
-              Buscar
+          <Col md={6} className="d-flex justify-content-between">
+            <div className="d-flex gap-2">
+              <Button
+                variant="outline-primary"
+                onClick={limpiarBusqueda}>
+                <FontAwesomeIcon icon={faTimes} className="me-2" />
+                Limpiar
+              </Button>
+            </div>
+            <Button
+              variant="outline-primary"
+              onClick={() => navigate("/proveedores/crear")}>
+              <FontAwesomeIcon icon={faPlus} className="me-2" />
+              Crear proveedor
             </Button>
-            <Button variant="secondary" onClick={loadSuppliers}>
-              Limpiar
-            </Button>
-          </div>
-        </div>
+          </Col>
+        </Row>
       </Form>
 
-      <Link to="/proveedores/crear" className="btn btn-success mb-3">
-        Nuevo Proveedor
-      </Link>
-
-      <Table striped bordered hover responsive>
+      <Table className="text-center" striped bordered hover responsive>
         <thead>
           <tr>
-            <th>DNI</th>
+            <th>Dni</th>
             <th>Nombre</th>
             <th>Apellido</th>
             <th>Empresa</th>
             <th>RUC</th>
             <th>Email</th>
             <th>Teléfono</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th className="text-center">Editar</th>
+            <th className="text-center">Estado</th>
           </tr>
         </thead>
         <tbody>
-        {suppliers.length === 0 ? (
+          {Array.isArray(suppliers) && suppliers.length === 0 ? (
             <tr>
-              <td colSpan="13" className="text-center">
+              <td colSpan="9" className="text-center">
                 No se encontraron proveedores
               </td>
             </tr>
           ) : (
-          suppliers.map((supplier) => (
-            <tr key={supplier.id}>
-              <td>{supplier.dni}</td>
-              <td>{supplier.firstName}</td>
-              <td>{supplier.lastName}</td>
-              <td>{supplier.company}</td>
-              <td>{supplier.ruc}</td>
-              <td>{supplier.email}</td>
-              <td>{supplier.phone}</td>
-              <td>
-                <Form.Check
-                  type="switch"
-                  checked={supplier.enabled}
-                  onChange={() => handleToggleStatus(supplier.id, supplier.enabled)}
-                />
-              </td>
-              <td>
-                <Link
-                  to={`/proveedores/editar/${supplier.id}`}
-                  className="btn btn-warning btn-sm me-2"
-                >
-                  Editar
-                </Link>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleToggleStatus(supplier.id, supplier.enabled)}
-                >
-                  {supplier.enabled ? 'Desactivar' : 'Activar'}
-                </Button>
-              </td>
-            </tr>
-          ))
+            suppliers.map((supplier) => (
+              <tr key={supplier.id}>
+                <td>{supplier.dni}</td>
+                <td>{supplier.firstName}</td>
+                <td>{supplier.lastName}</td>
+                <td>{supplier.company}</td>
+                <td>{supplier.ruc}</td>
+                <td>{supplier.email}</td>
+                <td>{supplier.phone}</td>
+                <td className="text-center">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => navigate(`/proveedores/editar/${supplier.id}`)}
+                    disabled={!supplier.enabled}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </Button>
+                </td>
+                <td className="text-center">
+                  <Form.Check
+                    type="switch"
+                    checked={supplier.enabled}
+                    onChange={() => handleToggleStatus(supplier.id, supplier.enabled)}
+                  />
+                </td>
+              </tr>
+            ))
           )}
-        
         </tbody>
       </Table>
+
+      <Form.Check
+        type="switch"
+        id="switch-inactivos"
+        label="Mostrar inactivos"
+        checked={mostrarInactivos}
+        onChange={() => setMostrarInactivos(!mostrarInactivos)}
+        className="mb-3"
+      />
     </div>
   );
 };

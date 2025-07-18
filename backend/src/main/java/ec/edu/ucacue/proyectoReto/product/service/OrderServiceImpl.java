@@ -104,7 +104,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
 
-        if ("RECEIVED".equals(order.getStatus())) {
+        if ("Rececived".equals(order.getStatus())) {
             throw new IllegalStateException("El pedido ya ha sido recibido");
         }
 
@@ -118,10 +118,8 @@ public class OrderServiceImpl implements OrderService {
                     throw new IllegalArgumentException(
                             "La cantidad recibida no puede ser mayor que la cantidad pedida");
                 }
-                // Actualizar la cantidad recibida
                 detail.setReceivedQuantity(received);
 
-                // Actualizar el stock del producto
                 try {
                     productService.updateStock(detail.getProduct().getId(), received);
                 } catch (Exception e) {
@@ -130,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
             }
         });
 
-        order.setStatus("RECEIVED");
+        order.setStatus("Received");
         orderRepository.save(order);
     }
 

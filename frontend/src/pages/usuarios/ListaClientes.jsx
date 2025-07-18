@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { clienteService } from "../../services/clienteService";
-import { Table, Button, Form, InputGroup, Row, Col, Badge, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { Table, Button, Form, InputGroup, Row, Col, Badge } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faEdit, faTrash, faSearch, faTimes, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEdit, faSearch, faTimes, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { mostrarError } from "../../api/toast";
 
@@ -12,7 +12,7 @@ const ListaClientes = () => {
   const [clients, setClients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filtrosActivos, setFiltrosActivos] = useState({
-    enabled: undefined,
+    enabled: true,
     membershipType: "",
     membershipStatus: ""
   });
@@ -73,18 +73,6 @@ const ListaClientes = () => {
     }
   };
 
-  const eliminarCliente = async (id) => {
-    if (window.confirm("¿Estás seguro de que deseas eliminar este cliente?")) {
-      try {
-        await clienteService.eliminarCliente(id);
-        await loadClients();
-        toast.success("Cliente eliminado correctamente");
-      } catch (error) {
-        mostrarError(error, "Error al eliminar el cliente");
-      }
-    }
-  };
-
   const getMembershipStatusBadge = (status) => {
     const statusConfig = {
       'Active': { variant: 'success', text: 'Activa' },
@@ -97,18 +85,9 @@ const ListaClientes = () => {
     return <Badge bg={config.variant}>{config.text}</Badge>;
   };
 
-  const contarFiltrosActivos = () => {
-    let count = 0;
-    if (searchTerm) count++;
-    if (filtrosActivos.enabled !== undefined) count++;
-    if (filtrosActivos.membershipType) count++;
-    if (filtrosActivos.membershipStatus) count++;
-    return count;
-  };
-
   return (
     <div className="container mt-4">
-      <h2>Lista de Clientes</h2>
+      <h2>Lista de clientes</h2>
       <br />
       <Form onSubmit={handleSearch} className="mb-4">
         <Row>
@@ -119,7 +98,7 @@ const ListaClientes = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
-              <Button type="submit" variant="primary">
+              <Button variant="outline-primary">
                 <FontAwesomeIcon icon={faSearch} />
               </Button>
             </InputGroup>
@@ -128,21 +107,23 @@ const ListaClientes = () => {
           <Col md={6} className="d-flex justify-content-between">
             <div className="d-flex gap-2">
               <Button
+                variant="outline-primary"
                 onClick={() => setMostrarFiltros(!mostrarFiltros)} >
                 <FontAwesomeIcon icon={faFilter} className="me-2" />
                 Filtros
               </Button>
               <Button
+                variant="outline-primary"
                 onClick={limpiarFiltros}>
                 <FontAwesomeIcon icon={faTimes} className="me-2" />
                 Limpiar
               </Button>
             </div>
             <Button
-              variant="success"
+              variant="outline-primary"
               onClick={() => navigate("/clientes/crear")}>
               <FontAwesomeIcon icon={faPlus} className="me-2" />
-              Nuevo Cliente
+              Crear cliente
             </Button>
           </Col>
         </Row>
@@ -204,8 +185,7 @@ const ListaClientes = () => {
         </div>
       )}
 
-      {/* Tabla de clientes */}
-      <Table striped bordered hover responsive>
+      <Table className="text-center" striped bordered hover responsive>
         <thead>
           <tr>
             <th>DNI</th>
@@ -213,16 +193,28 @@ const ListaClientes = () => {
             <th>Apellido</th>
             <th>Email</th>
             <th>Teléfono</th>
-            <th>Edad</th>
             <th>Altura</th>
             <th>Peso</th>
-            <th>Estado</th>
-            <th>Membresía</th>
-            <th>Suscripción</th>
-            <th>Días restantes</th>
-            <th>Acciones</th>
+            <th
+              className="text-center">
+              Membresía</th>
+            <th
+              className="text-center">
+              Suscripción</th>
+            <th
+              className="text-center">
+              Días restantes</th>
+            <th
+              className="text-center">
+              Editar
+            </th>
+            <th
+              className="text-center">
+              Estado
+            </th>
           </tr>
         </thead>
+
         <tbody>
           {clients.length === 0 ? (
             <tr>
@@ -238,59 +230,61 @@ const ListaClientes = () => {
                 <td>{client.lastName}</td>
                 <td>{client.email}</td>
                 <td>{client.phone}</td>
-                <td>{client.age}</td>
                 <td>{client.height} cm</td>
                 <td>{client.weight} kg</td>
-                <td>
+                <td
+                  className="text-center">
+                  {client.membershipType || "-"}
+                </td>
+                <td
+                  className="text-center">
+                  {client.membershipStatus ?
+                    getMembershipStatusBadge(client.membershipStatus) : "-"}
+                </td>
+                <td
+                  className="text-center">
+                  {client.remainingDays != null ? (
+                    <span className={
+                      client.remainingDays <= 7 ? 'text-danger fw-bold' :
+                        client.remainingDays <= 14 ? 'text-warning' : 'text-success'}>
+                      {client.remainingDays}
+                    </span>) : ("-")
+                  }
+                </td>
+                <td
+                  className="text-center">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => navigate(`/clientes/editar/${client.id}`)}
+                    disabled={!client.enabled}>
+                    <FontAwesomeIcon icon={faEdit} />
+                  </Button>
+                </td>
+                <td
+                  className="text-center">
                   <Form.Check
                     type="switch"
                     checked={client.enabled}
                     onChange={() => handleToggleStatus(client.id, client.enabled)}
                   />
                 </td>
-                <td> {client.membershipType} </td>
-                <td>{getMembershipStatusBadge(client.membershipStatus)}</td>
-                <td>
-                  <span className={client.remainingDays <= 7 ? 'text-danger fw-bold' :
-                    client.remainingDays <= 7 ? 'text-warning' : 'text-success'}>
-                    {client.remainingDays} días
-                  </span>
-                </td>
-                <td>
-                  <div className="d-flex gap-2">
-                    <OverlayTrigger placement="top" overlay={<Tooltip>Editar</Tooltip>}>
-                      <Button
-                        variant="outline-warning"
-                        size="sm"
-                        onClick={() => navigate(`/clientes/editar/${client.id}`)}
-                        disabled={[0].includes(client.enabled)}>
-                        <FontAwesomeIcon icon={faEdit} />
-                      </Button>
-                    </OverlayTrigger>
-
-                    <OverlayTrigger placement="top" overlay={<Tooltip>Eliminar</Tooltip>}>
-                      <Button
-                        variant="outline-danger"
-                        size="sm"
-                        onClick={() => eliminarCliente(client.id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </OverlayTrigger>
-                  </div>
-                </td>
               </tr>
             ))
           )}
         </tbody>
       </Table>
-
-      {/* Información de resultados */}
-      {clients.length > 0 && (
-        <div className="mt-3 text-muted">
-          Mostrando {clients.length} cliente{clients.length !== 1 ? 's' : ''}
-          {contarFiltrosActivos() > 0 && ' (filtrados)'}
-        </div>
-      )}
+      <Form.Check
+        type="switch"
+        id="mostrar-inactivos-switch"
+        label="Mostrar inactivos"
+        checked={filtrosActivos.enabled === false}
+        onChange={(e) => {
+          const nuevoEstado = e.target.checked ? false : true;
+          handleFiltroChange("enabled", nuevoEstado);
+        }}
+        className="mb-3"
+      />
     </div>
   );
 };

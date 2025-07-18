@@ -37,9 +37,6 @@ public class Sale implements Serializable {
 
     private String notes;
 
-    @Column(nullable = false)
-    private boolean cancelled = false;
-
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<SaleDetail> details = new ArrayList<>();

@@ -35,7 +35,7 @@ public class PersonalizedClass {
     private String paymentMethod;
 
     @Column(nullable = false)
-    private String status = "Scheduled"; // SCHEDULED, COMPLETED, CANCELLED
+    private String status = "Scheduled";
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_id", nullable = false)

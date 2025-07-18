@@ -1,12 +1,15 @@
 package ec.edu.ucacue.proyectoReto.product.service;
 
+import ec.edu.ucacue.proyectoReto.membership.model.Membership;
 import ec.edu.ucacue.proyectoReto.product.model.Product;
 import ec.edu.ucacue.proyectoReto.exception.ResourceNotFoundException;
 import ec.edu.ucacue.proyectoReto.product.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
@@ -21,12 +24,17 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> listProducts() {
-        return productRepository.findByActiveTrue();
+        return productRepository.findAll();
+    }
+
+    @Override
+    public List<Product> listEnabledProducts() {
+        return productRepository.findProductsByEnabledTrue();
     }
 
     @Override
     public Product getProductById(Long id) {
-        return productRepository.findByIdAndActiveTrue(id)
+        return productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
     }
 
@@ -43,12 +51,11 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
-
     @Override
-    public void deactivateProduct(Long id) {
+    @Transactional
+    public void toggleEnabled(Long id, boolean enabled) {
         Product product = getProductById(id);
-        product.setActive(false);
-        product.setUpdatedAt(LocalDate.now());
+        product.setEnabled(enabled);
         productRepository.save(product);
     }
 
@@ -56,11 +63,6 @@ public class ProductServiceImpl implements ProductService {
     public Product findByBarcode(String barcode) {
         return productRepository.findByBarcode(barcode)
                 .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con código: " + barcode));
-    }
-
-    @Override
-    public List<Product> findLowStockProducts() {
-        return productRepository.findByStockLessThanAndActiveTrue(0);
     }
 
     @Override
@@ -77,6 +79,15 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(newStock);
         product.setUpdatedAt(LocalDate.now());
         productRepository.save(product);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Product> searchProducts(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return null;
+        }
+        return productRepository.searchEnabledProducts(searchTerm);
     }
 
 }

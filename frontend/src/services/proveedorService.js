@@ -1,21 +1,52 @@
 import api from '../api/axios';
 
-export const ProveedorService = {
-  obtenerProveedores: () => api.get(`suppliers`),
+export const proveedorService = {
 
-  obtenerProveedorPorId: (id) => api.get(`suppliers/${id}`),
+  listarProveedores: async () => {
+    const response = await api.get('/suppliers');
+    return response.data;
+  },
 
-  crearProveedor: (supplier) => api.post(`suppliers`, supplier),
+  obtenerProveedorPorId: async (id) => {
+    const response = await api.get(`/suppliers/${id}`);
+    return response.data;
+  },
 
-  actualizarProveedor: (id, supplier) => api.put(`suppliers/${id}`, supplier),
+  crearProveedor: async (supplier) => {
+    const response = await api.post('/suppliers', supplier);
+    return response.data;
+  },
 
-  eliminarProveedor: (id) => api.delete(`suppliers/${id}`),
+  actualizarProveedor: async (id, supplier) => {
+    const response = await api.put(`/suppliers/${id}`, supplier);
+    return response.data;
+  },
 
-  buscarProveedores: (params) => api.get(`suppliers/search`, { params }),
+  eliminarProveedor: async (id) => {
+    const response = await api.delete(`/suppliers/${id}`);
+    return response.data;
+  },
 
-  cambiarEstado: (id, enabled) =>
-    api.patch(`suppliers/${id}/enable`, null, { params: { enabled } }),
+  cambiarEstado: async (id, enabled) => {
+    const response = await api.patch(`/suppliers/${id}/enable`, null, {
+      params: { enabled },
+    });
+    return response.data;
+  },
 
-  obtenerProveedoresPorEstado: (enabled) =>
-    api.get(`suppliers`, { params: { enabled } }),
+  buscarProveedores: async (searchTerm) => {
+    if (!searchTerm || searchTerm.trim() === '') {
+      const response = await proveedorService.listarProveedores();
+      return response;
+    }
+    const response = await api.get('/suppliers/search', {
+      params: { searchTerm: searchTerm.trim() },
+    });
+    return response.data;
+  },
+
+  listarProveedoresActivos: async () => {
+    const response = await api.get('/suppliers/enabled');
+    return response.data;
+  },
 };

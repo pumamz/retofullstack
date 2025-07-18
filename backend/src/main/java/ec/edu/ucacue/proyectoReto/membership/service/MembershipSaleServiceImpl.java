@@ -33,32 +33,26 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
     public MembershipSale createMembershipSale(MembershipSale membershipSale) {
         validateMembershipSaleData(membershipSale);
 
-        // Check if a client already has an active membership
         membershipSaleRepository.findActiveByClientId(membershipSale.getClient().getId())
                 .ifPresent(existingMembership -> {
                     throw new IllegalArgumentException("Client already has an active membership");
                 });
 
-        // Get the membership details
-        Membership membership = membershipRepository.findById(membershipSale.getId())
+        Membership membership = membershipRepository.findById(membershipSale.getMembership().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found"));
 
-        // Calculate dates
         LocalDate startDate = membershipSale.getStartDate() != null ?
                 membershipSale.getStartDate() : LocalDate.now();
         LocalDate endDate = startDate.plusDays(membership.getDurationDays());
 
-        // Set calculated values
         membershipSale.setStartDate(startDate);
         membershipSale.setEndDate(endDate);
         membershipSale.setTotalAmount(membership.getPrice());
         membershipSale.setStatus("Active");
         membershipSale.setCreationDate(LocalDateTime.now());
 
-        // Save membership sale
         MembershipSale savedSale = membershipSaleRepository.save(membershipSale);
 
-        // Update client membership information
         updateClientMembershipInfo(membershipSale.getClient(), membership, startDate, endDate);
 
         return savedSale;
@@ -88,7 +82,6 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
         membershipSale.setStatus("Cancelled");
         membershipSaleRepository.save(membershipSale);
 
-        // Update client membership status
         Client client = membershipSale.getClient();
         client.setMembershipStatus("Cancelled");
         client.setRemainingDays(0);
@@ -127,7 +120,6 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
             membershipSale.setStatus("Expired");
             membershipSaleRepository.save(membershipSale);
 
-            // Update client status
             Client client = membershipSale.getClient();
             client.setMembershipStatus("Expired");
             client.setRemainingDays(0);
@@ -163,21 +155,18 @@ public class MembershipSaleServiceImpl implements MembershipSaleService {
             throw new IllegalArgumentException("Payment method is required");
         }
 
-        // Verify client exists
         clientRepository.findById(membershipSale.getClient().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 
-        // Verify membership exists and is active
         Membership membership = membershipRepository.findById(membershipSale.getMembership().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Membership not found"));
 
-        if (!membership.getActive()) {
+        if (!membership.getEnabled()) {
             throw new IllegalArgumentException("Cannot sell inactive membership");
         }
     }
 
     private void updateClientMembershipInfo(Client client, Membership membership, LocalDate startDate, LocalDate endDate) {
-        // Get the full client object
         Client fullClient = clientRepository.findById(client.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found"));
 

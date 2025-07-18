@@ -28,7 +28,7 @@ public class Membership {
     private LocalDate creationDate;
 
     @Column(nullable = false)
-    private Boolean active = true;
+    private Boolean enabled = true;
 
     private String description;
 

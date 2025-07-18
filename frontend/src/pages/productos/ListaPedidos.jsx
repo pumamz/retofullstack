@@ -73,19 +73,24 @@ const ListaPedidos = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>Lista de Pedidos</h2>
-        <Button variant="success" as={Link} to="/productos/pedidos/crear">
+        <Button
+          variant="outline-primary"
+          as={Link}
+          to="/productos/pedidos/crear">
           <FontAwesomeIcon icon={faPlus} className="me-2" />
           Nuevo Pedido
         </Button>
       </div>
 
-      <Table striped bordered hover responsive>
-        <thead>
+      <Table className="text-center" striped bordered hover responsive>
+        <thead> 
           <tr>
             <th>Nº Pedido</th>
-            <th>Fecha</th>
             <th>Proveedor</th>
+            <th>Fecha</th>
+            <th>Notas</th>
             <th>Total</th>
+            <th>Entrega</th>
             <th>Estado</th>
             <th>Acciones</th>
           </tr>
@@ -101,9 +106,11 @@ const ListaPedidos = () => {
             pedidos.map((pedido) => (
               <tr key={pedido.id}>
                 <td>{pedido.orderNumber}</td>
+                <td>{pedido.supplier.firstName}{pedido.supplier.lastName}</td>
                 <td>{pedido.dateTime}</td>
-                <td>{pedido.supplier.firstName}</td>
+                <td>{pedido.notes}</td>
                 <td>${pedido.totalAmount.toFixed(2)}</td>
+                <td>{pedido.expectedDeliveryDate}</td>
                 <td>
                   <Form.Select
                     size="sm"
@@ -119,8 +126,8 @@ const ListaPedidos = () => {
                 </td>
                 <td>
                   <Button
+                    variant="outline-primary"
                     size="sm"
-                    variant="info"
                     onClick={() => setPedidoSeleccionado(pedido)}
                   >
                     <FontAwesomeIcon icon={faBoxOpen} />
@@ -151,7 +158,7 @@ const ListaPedidos = () => {
               Las cantidades ingresadas actualizarán automáticamente el stock
               de los productos.
             </div>
-            <Table striped bordered>
+            <Table className="text-center" striped >
               <thead>
                 <tr>
                   <th>Producto</th>
@@ -188,7 +195,7 @@ const ListaPedidos = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button
-              variant="secondary"
+              variant="outline-secondary"
               onClick={() => {
                 setPedidoSeleccionado(null);
                 setCantidadesRecibidas({});
@@ -197,7 +204,7 @@ const ListaPedidos = () => {
               Cancelar
             </Button>
             <Button
-              variant="primary"
+              variant="outline-primary"
               onClick={() => registrarRecepcion(pedidoSeleccionado.id)}
             >
               Registrar Recepción

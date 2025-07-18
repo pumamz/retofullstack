@@ -11,33 +11,9 @@ export const membresiaVentaService = {
     return response.data;
   },
 
-  obtenerVentasPorCliente: async (dni) => {
-    const response = await api.get(`/membership-sales/client/${dni}`);
-    return response.data;
-  },
-
   obtenerVentasPorRangoFechas: async (startDate, endDate) => {
     const response = await api.get('/membership-sales/date-range', {
       params: { startDate, endDate }
-    });
-    return response.data;
-  },
-
-  obtenerMembresiasExpirando: async (days = 7) => {
-    const response = await api.get('/membership-sales/expiring-soon', {
-      params: { days }
-    });
-    return response.data;
-  },
-
-  obtenerMembresiasExpiradas: async () => {
-    const response = await api.get('/membership-sales/expired');
-    return response.data;
-  },
-
-  obtenerClientesConMembresiasExpirando: async (days = 7) => {
-    const response = await api.get('/membership-sales/clients-expiring-soon', {
-      params: { days }
     });
     return response.data;
   },

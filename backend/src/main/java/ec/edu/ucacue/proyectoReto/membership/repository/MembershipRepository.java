@@ -12,12 +12,12 @@ import java.util.Optional;
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
 
-    List<Membership> findByActiveTrue();
+    List<Membership> findByEnabledTrue();
 
     Optional<Membership> findByNameIgnoreCase(String name);
 
-    @Query("SELECT m FROM Membership m WHERE m.active = true AND " +
+    @Query("SELECT m FROM Membership m WHERE m.enabled = true AND " +
             "(LOWER(m.name) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
             "LOWER(m.description) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
-    List<Membership> searchActiveMemberships(@Param("searchTerm") String searchTerm);
+    List<Membership> searchEnabledMemberships(@Param("searchTerm") String searchTerm);
 }

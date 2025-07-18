@@ -4,7 +4,6 @@ import { VentaService } from "../../services/ventaService";
 import { Table, Button, Form, Row, Col, Badge, Modal, OverlayTrigger, Tooltip, Card, } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTimes, faFileInvoice, faFilter, } from "@fortawesome/free-solid-svg-icons";
-import { toast } from "react-toastify";
 import { mostrarError } from "../../api/toast";
 
 const ListaVentas = () => {
@@ -49,18 +48,6 @@ const ListaVentas = () => {
         cargarVentas();
     };
 
-    const cancelarVenta = async (id) => {
-        if (window.confirm("¿Está seguro de cancelar esta venta?")) {
-            try {
-                await VentaService.cancelarVenta(id);
-                toast.success("Venta cancelada exitosamente");
-                cargarVentas();
-            } catch (error) {
-                mostrarError(error, "Error al cancelar la venta");
-            }
-        }
-    };
-
     const mostrarDetalles = async (invoiceNumber) => {
         try {
             const response = await VentaService.obtenerVentaPorNumero(invoiceNumber);
@@ -78,18 +65,21 @@ const ListaVentas = () => {
                 <Row>
                     <Col md={12} className="d-flex justify-content-between">
                         <div className="d-flex gap-2">
-                            <Button onClick={() => setMostrarFiltros(!mostrarFiltros)}>
+                            <Button
+                                variant="outline-primary"
+                                onClick={() => setMostrarFiltros(!mostrarFiltros)}>
                                 <FontAwesomeIcon icon={faFilter} className="me-2" />
                                 Filtros
                             </Button>
                             <Button
+                                variant="outline-primary"
                                 onClick={limpiarFiltros}>
                                 <FontAwesomeIcon icon={faTimes} className="me-2" />
                                 Limpiar
                             </Button>
                         </div>
                         <Button
-                            variant="success"
+                            variant="outline-primary"
                             onClick={() => navigate('/productos/ventas/crear')}>
                             <FontAwesomeIcon icon={faPlus} className="me-2" />
                             Nueva Venta
@@ -138,15 +128,17 @@ const ListaVentas = () => {
                 </Card>
             )}
 
-            <Table striped bordered hover responsive>
+            <Table className="text-center" striped bordered hover responsive>
                 <thead>
                     <tr>
                         <th>Nº Factura</th>
-                        <th>Fecha</th>
                         <th>Cliente</th>
+                        <th>Fecha</th>
+                        <th>Notas</th>
+                        <th>Pago</th>
                         <th>Total</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
+                        <th className="text-center">Estado</th>
+                        <th className="text-center">Detalles</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -160,37 +152,27 @@ const ListaVentas = () => {
                         ventas.map((venta) => (
                             <tr key={venta.id} className={venta.cancelled ? "table-danger" : ""}>
                                 <td>{venta.invoiceNumber}</td>
+                                <td>{venta.client?.firstName} {venta.client?.lastName}</td>
                                 <td>{venta.dateTime}</td>
-                                <td>{venta.client.firstName}</td>
+                                <td>{venta.notes}</td>
+                                <td>{venta.paymentMethod}</td>
                                 <td>${venta.totalAmount.toFixed(2)}</td>
-                                <td>
-                                    <Badge bg={venta.cancelled ? "danger" : "success"}>
+                                <td className="text-center">
+                                    <Badge
+                                        bg={venta.cancelled ? "danger" : "success"}>
                                         {venta.cancelled ? "Cancelada" : "Activa"}
                                     </Badge>
                                 </td>
-                                <td>
-                                    <div className="d-flex gap-2">
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Ver Detalles</Tooltip>}>
-                                            <Button
-                                                size="sm"
-                                                variant="info"
-                                                onClick={() => mostrarDetalles(venta.invoiceNumber)}
-                                            >
-                                                <FontAwesomeIcon icon={faFileInvoice} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                        {!venta.cancelled && (
-                                            <OverlayTrigger placement="top" overlay={<Tooltip>Cancelar Venta</Tooltip>}>
-                                                <Button
-                                                    size="sm"
-                                                    variant="danger"
-                                                    onClick={() => cancelarVenta(venta.id)}
-                                                >
-                                                    <FontAwesomeIcon icon={faTimes} />
-                                                </Button>
-                                            </OverlayTrigger>
-                                        )}
-                                    </div>
+                                <td className="text-center">
+                                    <OverlayTrigger placement="top" overlay={<Tooltip>Ver Detalles</Tooltip>}>
+                                        <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            onClick={() => mostrarDetalles(venta.invoiceNumber)}
+                                        >
+                                            <FontAwesomeIcon icon={faFileInvoice} />
+                                        </Button>
+                                    </OverlayTrigger>
                                 </td>
                             </tr>
                         ))

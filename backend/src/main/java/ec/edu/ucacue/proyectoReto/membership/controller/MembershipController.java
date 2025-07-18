@@ -25,7 +25,7 @@ public class MembershipController {
 
     @GetMapping("/active")
     public ResponseEntity<List<Membership>> getActiveMemberships() {
-        return ResponseEntity.ok(membershipService.getActiveMemberships());
+        return ResponseEntity.ok(membershipService.getEnabledMemberships());
     }
 
     @GetMapping("/{id}")
@@ -50,21 +50,9 @@ public class MembershipController {
         return ResponseEntity.ok(updatedMembership);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMembership(@PathVariable Long id) {
-        membershipService.deleteMembership(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping("/{id}/activate")
-    public ResponseEntity<Void> activateMembership(@PathVariable Long id) {
-        membershipService.activateMembership(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateMembership(@PathVariable Long id) {
-        membershipService.deactivateMembership(id);
+    @PatchMapping("/{id}/enable")
+    public ResponseEntity<Void> toggleMembershipStatus(@PathVariable Long id, @RequestParam boolean enabled) {
+        membershipService.toggleEnabled(id, enabled);
         return ResponseEntity.ok().build();
     }
 }

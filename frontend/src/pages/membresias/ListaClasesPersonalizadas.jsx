@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { clasePersonalizadaService } from '../../services/clasePersonalizadaService';
 import { clienteService } from '../../services/clienteService';
-import { Table, Button, Form, Modal, OverlayTrigger, Tooltip, Row, Col, InputGroup } from 'react-bootstrap';
+import { Table, Button, Form, Modal, Row, Col, InputGroup, Dropdown, DropdownButton } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faCheck, faTimes, faClock, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEllipsisV, faEdit, faTrash, faCheck, faTimes, faClock, faFilter, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 import { mostrarError } from '../../api/toast';
 
@@ -59,7 +59,7 @@ const ListaClasesPersonalizadas = () => {
         }
     }, [todasLasClases, searchTerm, filtroEstado, filtroFechaInicio, filtroFechaFin]);
 
-    const limpiarFiltros = async () => {
+    const limpiarFiltros = () => {
         setSearchTerm('');
         setFiltroEstado('');
         setFiltroFechaInicio('');
@@ -109,11 +109,7 @@ const ListaClasesPersonalizadas = () => {
 
     const reprogramarClase = async () => {
         try {
-            await clasePersonalizadaService.reprogramarClase(
-                claseAReprogramar.id,
-                nuevaFecha,
-                nuevoHora
-            );
+            await clasePersonalizadaService.reprogramarClase(claseAReprogramar.id, nuevaFecha, nuevoHora);
             toast.success('Clase reprogramada');
             setShowReprogramarModal(false);
             cargarClases();
@@ -122,6 +118,25 @@ const ListaClasesPersonalizadas = () => {
         }
     };
 
+    const renderEstadoBadge = (estado) => {
+        let texto = '';
+        switch (estado) {
+            case 'Scheduled':
+                texto = 'Programada';
+                break;
+            case 'Completed':
+                texto = 'Completada';
+                break;
+            case 'Cancelled':
+                texto = 'Cancelada';
+                break;
+            default:
+                texto = estado;
+        }
+        return texto;
+    };
+
+
     useEffect(() => {
         cargarClases();
     }, [cargarClases]);
@@ -129,6 +144,44 @@ const ListaClasesPersonalizadas = () => {
     useEffect(() => {
         aplicarFiltros();
     }, [searchTerm, filtroEstado, filtroFechaInicio, filtroFechaFin, aplicarFiltros]);
+
+    const renderDropdownActions = (clase) => (
+        <DropdownButton
+            variant="outline-primary"
+            title={<FontAwesomeIcon icon={faEllipsisV} />}
+            size="sm"
+        >
+            <Dropdown.Item
+                onClick={() => navigate(`/membresias/clases/editar/${clase.id}`)}
+                disabled={['Completed', 'Cancelled'].includes(clase.status)}
+            >
+                <FontAwesomeIcon icon={faEdit} className="me-2" /> Editar
+            </Dropdown.Item>
+            <Dropdown.Item
+                onClick={() => completarClase(clase.id)}
+                disabled={['Completed', 'Cancelled'].includes(clase.status)}
+            >
+                <FontAwesomeIcon icon={faCheck} className="me-2" /> Completar
+            </Dropdown.Item>
+            <Dropdown.Item
+                onClick={() => cancelarClase(clase.id)}
+                disabled={['Completed', 'Cancelled'].includes(clase.status)}
+            >
+                <FontAwesomeIcon icon={faTimes} className="me-2" /> Cancelar
+            </Dropdown.Item>
+            <Dropdown.Item
+                onClick={() => abrirModalReprogramar(clase)}
+                disabled={['Completed', 'Cancelled'].includes(clase.status)}
+            >
+                <FontAwesomeIcon icon={faClock} className="me-2" /> Reprogramar
+            </Dropdown.Item>
+            <Dropdown.Item
+                onClick={() => eliminarClasePersonalizada(clase.id)}
+            >
+                <FontAwesomeIcon icon={faTrash} className="me-2" /> Eliminar
+            </Dropdown.Item>
+        </DropdownButton>
+    );
 
     return (
         <div className="container mt-4">
@@ -143,25 +196,21 @@ const ListaClasesPersonalizadas = () => {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <Button type="submit" variant="primary">
+                            <Button variant="outline-primary" type="submit">
                                 <FontAwesomeIcon icon={faSearch} />
                             </Button>
                         </InputGroup>
                     </Col>
                     <Col md={6} className="d-flex justify-content-between">
                         <div className="d-flex gap-2">
-                            <Button
-                                onClick={() => setMostrarFiltros(!mostrarFiltros)}>
-                                <FontAwesomeIcon icon={faFilter} className="me-2" />
-                                Filtros
+                            <Button variant="outline-primary" onClick={() => setMostrarFiltros(!mostrarFiltros)}>
+                                <FontAwesomeIcon icon={faFilter} className="me-2" /> Filtros
                             </Button>
-                            <Button
-                                onClick={limpiarFiltros}>
-                                <FontAwesomeIcon icon={faTimes} className="me-2" />
-                                Limpiar
+                            <Button variant="outline-primary" onClick={limpiarFiltros}>
+                                <FontAwesomeIcon icon={faTimes} className="me-2" /> Limpiar
                             </Button>
                         </div>
-                        <Button variant="success" onClick={() => navigate('/membresias/clases/crear')}>
+                        <Button variant="outline-primary" onClick={() => navigate('/membresias/clases/crear')}>
                             <FontAwesomeIcon icon={faPlus} className="me-2" /> Nueva Clase
                         </Button>
                     </Col>
@@ -175,10 +224,7 @@ const ListaClasesPersonalizadas = () => {
                             <Col md={4}>
                                 <Form.Group>
                                     <Form.Label>Estado</Form.Label>
-                                    <Form.Select
-                                        value={filtroEstado}
-                                        onChange={(e) => setFiltroEstado(e.target.value)}
-                                    >
+                                    <Form.Select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
                                         <option value="">Todos</option>
                                         <option value="Scheduled">Programadas</option>
                                         <option value="Completed">Completadas</option>
@@ -189,21 +235,13 @@ const ListaClasesPersonalizadas = () => {
                             <Col md={4}>
                                 <Form.Group>
                                     <Form.Label>Fecha Inicio</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={filtroFechaInicio}
-                                        onChange={(e) => setFiltroFechaInicio(e.target.value)}
-                                    />
+                                    <Form.Control type="date" value={filtroFechaInicio} onChange={(e) => setFiltroFechaInicio(e.target.value)} />
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group>
                                     <Form.Label>Fecha Fin</Form.Label>
-                                    <Form.Control
-                                        type="date"
-                                        value={filtroFechaFin}
-                                        onChange={(e) => setFiltroFechaFin(e.target.value)}
-                                    />
+                                    <Form.Control type="date" value={filtroFechaFin} onChange={(e) => setFiltroFechaFin(e.target.value)} />
                                 </Form.Group>
                             </Col>
                         </Row>
@@ -211,17 +249,16 @@ const ListaClasesPersonalizadas = () => {
                 </div>
             )}
 
-            <Table striped bordered hover responsive>
+            <Table className='text-center' striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Nombre Clase</th>
                         <th>Descripción</th>
                         <th>Cliente</th>
                         <th>Fecha</th>
                         <th>Hora</th>
                         <th>Precio</th>
-                        <th>Método de Pago</th>
+                        <th>Pago</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -229,14 +266,11 @@ const ListaClasesPersonalizadas = () => {
                 <tbody>
                     {clasesPersonalizadas.length === 0 ? (
                         <tr>
-                            <td colSpan="13" className="text-center">
-                                No se encontraron clases personalizadas
-                            </td>
+                            <td colSpan="13" className="text-center">No se encontraron clases personalizadas</td>
                         </tr>
                     ) : (
                         clasesPersonalizadas.map((clase) => (
                             <tr key={clase.id}>
-                                <td>{clase.id}</td>
                                 <td>{clase.className}</td>
                                 <td>{clase.description || 'Sin descripción'}</td>
                                 <td>{clase.client?.firstName} {clase.client?.lastName}</td>
@@ -244,58 +278,8 @@ const ListaClasesPersonalizadas = () => {
                                 <td>{clase.time}</td>
                                 <td>${clase.price?.toFixed(2)}</td>
                                 <td>{clase.paymentMethod}</td>
-                                <td>{clase.status}</td>
-                                <td>
-                                    <div className="d-flex gap-1 flex-wrap">
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Editar</Tooltip>}>
-                                            <Button
-                                                variant="outline-warning"
-                                                size="sm"
-                                                onClick={() => navigate(`/membresias/clases/editar/${clase.id}`)}
-                                                disabled={['Completed', 'Cancelled'].includes(clase.status)}>
-                                                <FontAwesomeIcon icon={faEdit} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Completar</Tooltip>}>
-                                            <Button
-                                                variant="outline-success"
-                                                size="sm"
-                                                onClick={() => completarClase(clase.id)}
-                                                disabled={['Completed', 'Cancelled'].includes(clase.status)}
-                                            >
-                                                <FontAwesomeIcon icon={faCheck} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Cancelar</Tooltip>}>
-                                            <Button
-                                                variant="outline-secondary"
-                                                size="sm"
-                                                onClick={() => cancelarClase(clase.id)}
-                                                disabled={['Completed', 'Cancelled'].includes(clase.status)}
-                                            >
-                                                <FontAwesomeIcon icon={faTimes} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Reprogramar</Tooltip>}>
-                                            <Button
-                                                variant="outline-info"
-                                                size="sm"
-                                                onClick={() => abrirModalReprogramar(clase)}
-                                                disabled={['Completed', 'Cancelled'].includes(clase.status)}
-                                            >
-                                                <FontAwesomeIcon icon={faClock} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Eliminar</Tooltip>}>
-                                            <Button
-                                                variant="outline-danger"
-                                                size="sm"
-                                                onClick={() => eliminarClasePersonalizada(clase.id)}>
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                    </div>
-                                </td>
+                                <td className='text-center'>{renderEstadoBadge(clase.status)}</td>
+                                <td className='text-center'>{renderDropdownActions(clase)}</td>
                             </tr>
                         ))
                     )}
@@ -312,21 +296,11 @@ const ListaClasesPersonalizadas = () => {
                     <Form>
                         <Form.Group className="mb-3">
                             <Form.Label>Nueva Fecha</Form.Label>
-                            <Form.Control
-                                type="date"
-                                value={nuevaFecha}
-                                onChange={(e) => setNuevaFecha(e.target.value)}
-                                required
-                            />
+                            <Form.Control type="date" value={nuevaFecha} onChange={(e) => setNuevaFecha(e.target.value)} required />
                         </Form.Group>
                         <Form.Group>
                             <Form.Label>Nueva Hora</Form.Label>
-                            <Form.Control
-                                type="time"
-                                value={nuevoHora}
-                                onChange={(e) => setNuevoHora(e.target.value)}
-                                required
-                            />
+                            <Form.Control type="time" value={nuevoHora} onChange={(e) => setNuevoHora(e.target.value)} required />
                         </Form.Group>
                     </Form>
                 </Modal.Body>

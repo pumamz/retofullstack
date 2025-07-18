@@ -2,13 +2,12 @@ import axios from 'axios';
 import { mostrarError } from './toast';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8080/api',
+  baseURL: process.env.REACT_APP_API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Interceptor para añadir token JWT
 api.interceptors.request.use(
   (config) => {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -20,7 +19,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor para manejo de errores global
 api.interceptors.response.use(
   (response) => response,
   (error) => {

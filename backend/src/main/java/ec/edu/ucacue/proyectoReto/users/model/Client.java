@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -46,31 +47,17 @@ public class Client extends Person {
     private LocalDate membershipEndDate;
 
     @Column(name = "membership_status")
-    private String membershipStatus; // ACTIVE, EXPIRED, CANCELLED
+    private String membershipStatus;
 
     @Column(name = "remaining_days")
     private Integer remainingDays;
-
-    // Helper methods
-    public boolean isMembershipActive() {
-        return "Active".equals(membershipStatus) &&
-                membershipEndDate != null &&
-                membershipEndDate.isAfter(LocalDate.now());
-    }
-
-    public boolean isMembershipExpiringSoon(int daysThreshold) {
-        if (!"Active".equals(membershipStatus) || membershipEndDate == null) {
-            return false;
-        }
-        return membershipEndDate.minusDays(daysThreshold).isBefore(LocalDate.now()) ||
-                membershipEndDate.minusDays(daysThreshold).equals(LocalDate.now());
-    }
 
     public void updateRemainingDays() {
         if (membershipEndDate != null && "Active".equals(membershipStatus)) {
             LocalDate today = LocalDate.now();
             if (membershipEndDate.isAfter(today)) {
-                this.remainingDays = Math.toIntExact(today.until(membershipEndDate).getDays());
+                long daysRemaining = ChronoUnit.DAYS.between(today, membershipEndDate);
+                this.remainingDays = (int) daysRemaining;
             } else {
                 this.remainingDays = 0;
                 this.membershipStatus = "Expired";
@@ -79,4 +66,5 @@ public class Client extends Person {
             this.remainingDays = 0;
         }
     }
+
 }

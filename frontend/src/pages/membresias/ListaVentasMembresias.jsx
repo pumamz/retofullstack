@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Modal, InputGroup, Row, Col, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Table, Button, Modal, InputGroup, Row, Col, Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEye, faTrash, faFilter, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
@@ -18,6 +18,7 @@ const ListaVentasMembresias = () => {
     const [filtroFechaInicio, setFiltroFechaInicio] = useState('');
     const [filtroFechaFin, setFiltroFechaFin] = useState('');
     const [mostrarFiltros, setMostrarFiltros] = useState(false);
+    const [filtroEstado, setFiltroEstado] = useState('');
 
     const cargarVentas = useCallback(async () => {
         try {
@@ -32,11 +33,17 @@ const ListaVentasMembresias = () => {
     const aplicarFiltros = useCallback(async () => {
         try {
             let filtradas = [...todasLasVentas];
+
             if (searchTerm.trim()) {
                 const clientes = await clienteService.buscarClientes(searchTerm.trim());
                 const idsClientes = clientes.map((c) => c.id);
                 filtradas = filtradas.filter((v) => idsClientes.includes(v.client?.id));
             }
+
+            if (filtroEstado) {
+                filtradas = filtradas.filter((v) => v.status === filtroEstado);
+            }
+
             if (filtroFechaInicio && filtroFechaFin) {
                 filtradas = filtradas.filter((v) => {
                     const fechaVenta = new Date(v.saleDate);
@@ -46,18 +53,46 @@ const ListaVentasMembresias = () => {
                     );
                 });
             }
+
             setVentas(filtradas);
         } catch (error) {
             mostrarError(null, 'Error al aplicar filtros');
         }
-    }, [searchTerm, filtroFechaInicio, filtroFechaFin, todasLasVentas]);
+    }, [searchTerm, filtroFechaInicio, filtroFechaFin, filtroEstado, todasLasVentas]);
+
 
     const limpiarFiltros = async () => {
         setSearchTerm('');
         setFiltroFechaInicio('');
         setFiltroFechaFin('');
+        setFiltroEstado('');
         setVentas(todasLasVentas);
         setMostrarFiltros(false);
+    };
+
+    const renderEstadoBadge = (estado) => {
+        let variant = '';
+        let texto = '';
+
+        switch (estado) {
+            case 'Active':
+                variant = 'success';
+                texto = 'Activa';
+                break;
+            case 'Cancelled':
+                variant = 'danger';
+                texto = 'Cancelada';
+                break;
+            case 'Expired':
+                variant = 'secondary';
+                texto = 'Expirada';
+                break;
+            default:
+                variant = 'warning';
+                texto = estado;
+        }
+
+        return <span className={`badge bg-${variant}`}>{texto}</span>;
     };
 
     useEffect(() => {
@@ -66,7 +101,7 @@ const ListaVentasMembresias = () => {
 
     useEffect(() => {
         aplicarFiltros();
-    }, [searchTerm, filtroFechaInicio, filtroFechaFin, aplicarFiltros]);
+    }, [searchTerm, filtroFechaInicio, filtroFechaFin, filtroEstado, aplicarFiltros]);
 
     const eliminarVenta = async (id) => {
         if (window.confirm('¿Deseas eliminar esta venta de membresía?')) {
@@ -98,7 +133,9 @@ const ListaVentasMembresias = () => {
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
-                            <Button type="submit" variant="primary">
+                            <Button
+                                variant="outline-primary"
+                                type="submit" >
                                 <FontAwesomeIcon icon={faSearch} />
                             </Button>
                         </InputGroup>
@@ -106,18 +143,21 @@ const ListaVentasMembresias = () => {
 
                     <Col md={6} className="d-flex justify-content-between">
                         <div className="d-flex gap-2">
-                            <Button onClick={() => setMostrarFiltros(!mostrarFiltros)}>
+                            <Button
+                                variant="outline-primary"
+                                onClick={() => setMostrarFiltros(!mostrarFiltros)}>
                                 <FontAwesomeIcon icon={faFilter} className="me-2" />
                                 Filtros
                             </Button>
                             <Button
+                                variant="outline-primary"
                                 onClick={limpiarFiltros}>
                                 <FontAwesomeIcon icon={faTimes} className="me-2" />
                                 Limpiar
                             </Button>
                         </div>
                         <Button
-                            variant="success"
+                            variant="outline-primary"
                             onClick={() => navigate('/membresias/ventas/crear')}>
                             <FontAwesomeIcon icon={faPlus} className="me-2" />
                             Nueva Venta
@@ -130,7 +170,18 @@ const ListaVentasMembresias = () => {
                 <div className="card mb-4">
                     <div className="card-body">
                         <Row>
-                            <Col md={6}>
+                            <Col md={4}>
+                                <Form.Group>
+                                    <Form.Label>Estado</Form.Label>
+                                    <Form.Select value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)}>
+                                        <option value="">Todos</option>
+                                        <option value="Active">Activas</option>
+                                        <option value="Cancelled">Canceladas</option>
+                                        <option value="Expired">Expiradas</option>
+                                    </Form.Select>
+                                </Form.Group>
+                            </Col>
+                            <Col md={4}>
                                 <Form.Group>
                                     <Form.Label>Fecha Inicio</Form.Label>
                                     <Form.Control
@@ -140,7 +191,7 @@ const ListaVentasMembresias = () => {
                                     />
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+                            <Col md={4}>
                                 <Form.Group>
                                     <Form.Label>Fecha Fin</Form.Label>
                                     <Form.Control
@@ -155,18 +206,17 @@ const ListaVentasMembresias = () => {
                 </div>
             )}
 
-            <Table striped bordered hover responsive>
+            <Table className='text-center' striped bordered hover responsive>
                 <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Membresía</th>
                         <th>Fecha Venta</th>
                         <th>Precio</th>
                         <th>Inicio</th>
                         <th>Fin</th>
                         <th>Cliente</th>
-                        <th>Método de Pago</th>
                         <th>Estado</th>
+                        <th>Pago</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -180,37 +230,30 @@ const ListaVentasMembresias = () => {
                     ) : (
                         ventas.map((venta) => (
                             <tr key={venta.id}>
-                                <td>{venta.id}</td>
                                 <td>{venta.membership?.name}</td>
                                 <td>{venta.saleDate}</td>
                                 <td>${venta.totalAmount.toFixed(2)}</td>
                                 <td>{venta.startDate}</td>
                                 <td>{venta.endDate}</td>
-                                <td>
-                                    {venta.client?.firstName} {venta.client?.lastName}
-                                </td>
+                                <td>{venta.client?.firstName} {venta.client?.lastName}</td>
+                                <td>{renderEstadoBadge(venta.status)}</td>
                                 <td>{venta.paymentMethod}</td>
-                                <td>{venta.status}</td>
                                 <td>
-                                    <div className="d-flex gap-1 flex-wrap">
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Detalles</Tooltip>}>
-                                            <Button
-                                                variant="outline-info"
-                                                size="sm"
-                                                onClick={() => mostrarDetalles(venta)}
-                                            >
-                                                <FontAwesomeIcon icon={faEye} />
-                                            </Button>
-                                        </OverlayTrigger>
-                                        <OverlayTrigger placement="top" overlay={<Tooltip>Eliminar</Tooltip>}>
-                                            <Button
-                                                variant="outline-danger"
-                                                size="sm"
-                                                onClick={() => eliminarVenta(venta.id)}
-                                            >
-                                                <FontAwesomeIcon icon={faTrash} />
-                                            </Button>
-                                        </OverlayTrigger>
+                                    <div className="d-flex text-center gap-1 flex-wrap">
+                                        <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            onClick={() => mostrarDetalles(venta)}
+                                        >
+                                            <FontAwesomeIcon icon={faEye} />
+                                        </Button>
+                                        <Button
+                                            variant="outline-danger"
+                                            size="sm"
+                                            onClick={() => eliminarVenta(venta.id)}
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -266,7 +309,7 @@ const ListaVentasMembresias = () => {
                                 <strong>Método de Pago:</strong> {ventaSeleccionada.paymentMethod}
                             </p>
                             <p>
-                                <strong>Estado:</strong> {ventaSeleccionada.status}
+                                <strong>Estado:</strong> {renderEstadoBadge(ventaSeleccionada.status)}
                             </p>
                         </>
                     )}

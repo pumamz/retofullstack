@@ -28,11 +28,15 @@ public class SupplierController {
         return ResponseEntity.ok(supplierService.findSupplierById(id));
     }
 
+    @GetMapping("/enabled")
+    public ResponseEntity<List<Supplier>> getEnabledSuppliers() {
+        return ResponseEntity.ok(supplierService.listEnabledSuppliers());
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<Supplier>> searchSuppliers(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String dni) {
-        return ResponseEntity.ok(supplierService.searchSuppliers(name, dni));
+            @RequestParam(required = false) String searchTerm) {
+        return ResponseEntity.ok(supplierService.searchSuppliers(searchTerm));
     }
 
     @PostMapping
@@ -45,12 +49,6 @@ public class SupplierController {
     public ResponseEntity<Void> updateSupplier(@PathVariable Long id, @Valid @RequestBody Supplier supplier) {
         supplier.setId(id);
         supplierService.editSupplier(supplier);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteSupplier(@PathVariable Long id) {
-        supplierService.deleteSupplierById(id);
         return ResponseEntity.ok().build();
     }
 

@@ -30,6 +30,11 @@ public class ClientController {
         return ResponseEntity.ok(clientService.findClientById(id));
     }
 
+    @GetMapping("/enabled")
+    public ResponseEntity<List<Client>> getEnabledClients() {
+        return ResponseEntity.ok(clientService.listEnabledClients());
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<Client>> searchClients(@RequestParam String searchTerm) {
         return ResponseEntity.ok(clientService.searchClients(searchTerm));
@@ -45,12 +50,6 @@ public class ClientController {
     public ResponseEntity<Void> updateClient(@PathVariable Long id, @Valid @RequestBody Client client) {
         client.setId(id);
         clientService.editClient(client);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        clientService.deleteClientById(id);
         return ResponseEntity.ok().build();
     }
 

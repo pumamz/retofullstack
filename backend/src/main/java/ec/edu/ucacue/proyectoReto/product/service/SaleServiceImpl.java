@@ -25,9 +25,28 @@ public class SaleServiceImpl implements SaleService {
 
     private String generateInvoiceNumber() {
         String year = String.valueOf(LocalDate.now().getYear());
-        Integer lastNumber = saleRepository.findLastInvoiceNumberForYear(year)
+        String prefix = "FACT-" + year + "-";
+
+        List<Sale> sales = saleRepository.findByInvoiceNumberStartingWith(prefix);
+
+        // Extraer la parte numérica
+        int maxSequence = sales.stream()
+                .map(Sale::getInvoiceNumber)
+                .map(invoice -> extractSequence(invoice, prefix))
+                .max(Integer::compareTo)
                 .orElse(0);
-        return String.format("FACT-%s-%06d", year, lastNumber + 1);
+
+        int nextSequence = maxSequence + 1;
+
+        return String.format("FACT-%s-%06d", year, nextSequence);
+    }
+
+    private int extractSequence(String invoiceNumber, String prefix) {
+        try {
+            return Integer.parseInt(invoiceNumber.substring(prefix.length()));
+        } catch (Exception e) {
+            return 0; // Maneja facturas con formato inesperado
+        }
     }
 
 
@@ -52,12 +71,10 @@ public class SaleServiceImpl implements SaleService {
                 detail.setSale(sale);
                 detail.setUnitPrice(product.getPriceSale());
 
-                // Si no se especifica descuento, se establece en 0
                 if (detail.getDiscount() == null) {
                     detail.setDiscount(BigDecimal.ZERO);
                 }
 
-                // Cálculo del subtotal considerando el descuento
                 BigDecimal subtotalSinDescuento = detail.getUnitPrice()
                         .multiply(BigDecimal.valueOf(detail.getQuantity()));
                 detail.setSubtotal(subtotalSinDescuento.subtract(detail.getDiscount()));
@@ -80,24 +97,6 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public List<Sale> findSalesByDateRange(LocalDate start, LocalDate end) {
         return saleRepository.findByDateTimeBetween(start, end);
-    }
-
-    @Override
-    @Transactional
-    public void cancelSale(Long saleId) throws BusinessException {
-        Sale sale = saleRepository.findById(saleId)
-            .orElseThrow(() -> new ResourceNotFoundException("Venta no encontrada"));
-            
-        if (sale.isCancelled()) {
-            throw new BusinessException("La venta ya está cancelada");
-        }
-        
-        sale.getDetails().forEach(detail -> 
-            productService.updateStock(detail.getProduct().getId(), detail.getQuantity())
-        );
-        
-        sale.setCancelled(true);
-        saleRepository.save(sale);
     }
 
     @Override

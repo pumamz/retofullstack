@@ -52,12 +52,6 @@ public class SaleController {
         return ResponseEntity.ok(saleService.findByInvoiceNumber(invoiceNumber));
     }
 
-    @PostMapping("/{saleId}/cancel")
-    public ResponseEntity<Void> cancelSale(@PathVariable Long saleId) throws BusinessException {
-        saleService.cancelSale(saleId);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/date-range")
     public ResponseEntity<List<Sale>> getSalesByDateRange(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
