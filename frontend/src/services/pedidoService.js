@@ -1,34 +1,32 @@
+import api from '../api/axios';
 
-import axios from '../api/axios';
-
-export const PedidoService = {
-    obtenerDatosPedido: () => {
-        return axios.get('/pedidos/data');
-    },
-
-    crearPedido: (pedido) => {
-        return axios.post('/pedidos', {
+export const pedidoService = {
+    crearPedido: async (pedido) => {
+        const response = await api.post('/pedidos', {
             ...pedido,
-            status: 'PENDIENTE',
+            status: 'Pending',
             totalAmount: pedido.details.reduce(
-                (total, detail) => total + (detail.quantity * detail.unitPrice), 0
-            )
+                (total, detail) => total + (detail.quantity * detail.unitPrice),
+                0
+            ),
         });
+        return response.data;
     },
 
-    listarPedidos: () => {
-        return axios.get('/pedidos');
+    listarPedidos: async () => {
+        const response = await api.get('/pedidos');
+        return response.data;
     },
 
-    obtenerPedidoPorNumero: (numeroPedido) => {
-        return axios.get(`/pedidos/${numeroPedido}`);
+    actualizarEstadoPedido: async (pedidoId, estado) => {
+        const response = await api.put(`/pedidos/${pedidoId}/status`, null, {
+            params: { status: estado },
+        });
+        return response.data;
     },
 
-    actualizarEstadoPedido: (pedidoId, estado) => {
-        return axios.put(`/pedidos/${pedidoId}/status?status=${estado}`);
+    recibirPedido: async (orderId, cantidades) => {
+        const response = await api.put(`/pedidos/${orderId}/receive`, cantidades);
+        return response.data;
     },
-
-    recibirPedido: (orderId, cantidades) => {
-        return axios.put(`/pedidos/${orderId}/receive`, cantidades);
-    }
 };

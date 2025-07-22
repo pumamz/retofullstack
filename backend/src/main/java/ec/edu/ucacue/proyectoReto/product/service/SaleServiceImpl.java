@@ -29,7 +29,6 @@ public class SaleServiceImpl implements SaleService {
 
         List<Sale> sales = saleRepository.findByInvoiceNumberStartingWith(prefix);
 
-        // Extraer la parte numérica
         int maxSequence = sales.stream()
                 .map(Sale::getInvoiceNumber)
                 .map(invoice -> extractSequence(invoice, prefix))

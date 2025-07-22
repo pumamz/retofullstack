@@ -19,22 +19,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 @CrossOrigin(origins = "http://localhost:3000")
 public class SaleController {
     private final SaleService saleService;
-    private final ClientService clientService;
-    private final ProductService productService;
 
-    public SaleController(SaleService saleService, ClientService clientService, 
-                         ProductService productService) {
+    public SaleController(SaleService saleService) {
         this.saleService = saleService;
-        this.clientService = clientService;
-        this.productService = productService;
-    }
-
-    @GetMapping("/data")
-    public ResponseEntity<Map<String, Object>> getSaleData() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("clients", clientService.listClient());
-        response.put("products", productService.listProducts());
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping

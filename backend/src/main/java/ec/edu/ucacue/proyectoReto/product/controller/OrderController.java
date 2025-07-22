@@ -1,30 +1,27 @@
 package ec.edu.ucacue.proyectoReto.product.controller;
 
 import ec.edu.ucacue.proyectoReto.product.model.Order;
-import ec.edu.ucacue.proyectoReto.users.service.SupplierService;
+import ec.edu.ucacue.proyectoReto.product.model.Sale;
 import ec.edu.ucacue.proyectoReto.product.service.OrderService;
-import ec.edu.ucacue.proyectoReto.product.service.ProductService;
 import jakarta.validation.Valid;
+import org.aspectj.weaver.ast.Or;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/pedidos")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 public class OrderController {
     private final OrderService orderService;
-    private final ProductService productService;
-    private final SupplierService supplierService;
 
-    public OrderController(OrderService orderService, ProductService productService, 
-                         SupplierService supplierService) {
+    public OrderController(OrderService orderService) {
         this.orderService = orderService;
-        this.productService = productService;
-        this.supplierService = supplierService;
     }
 
     @PostMapping
@@ -38,9 +35,10 @@ public class OrderController {
         return ResponseEntity.ok(orderService.listOrders());
     }
 
-    @GetMapping("/{orderNumber}")
-    public ResponseEntity<Order> getOrderByNumber(@PathVariable String orderNumber) {
-        return ResponseEntity.ok(orderService.findByOrderNumber(orderNumber));
+    @GetMapping("/search")
+    public ResponseEntity<List<Order>> searchOrders(
+            @RequestParam(required = false) String searchTerm) {
+        return ResponseEntity.ok(orderService.searchOrders(searchTerm));
     }
 
     @PutMapping("/{orderId}/status")
@@ -54,5 +52,12 @@ public class OrderController {
                                            @RequestBody Map<Long, Integer> receivedQuantities) {
         orderService.updateReceivedQuantities(orderId, receivedQuantities);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/date-range")
+    public ResponseEntity<List<Order>> getSalesByDateRange(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+        return ResponseEntity.ok(orderService.findOrdersByDateRange(start, end));
     }
 }

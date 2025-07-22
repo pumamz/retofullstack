@@ -93,12 +93,6 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Order findByOrderNumber(String orderNumber) {
-        return orderRepository.findByOrderNumber(orderNumber)
-            .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado"));
-    }
-
-    @Override
     @Transactional
     public void updateReceivedQuantities(Long orderId, Map<Long, Integer> receivedQuantities) {
         Order order = orderRepository.findById(orderId)
@@ -130,6 +124,14 @@ public class OrderServiceImpl implements OrderService {
 
         order.setStatus("Received");
         orderRepository.save(order);
+    }
+
+    @Override
+    public List<Order> searchOrders(String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return null;
+        }
+        return orderRepository.searchOrders(searchTerm);
     }
 
 }
