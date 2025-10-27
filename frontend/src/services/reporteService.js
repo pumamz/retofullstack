@@ -1,7 +1,6 @@
 import api from '../api/axios';
 
 export const reporteService = {
-  // Reportes de membresías
   obtenerReporteMembresias: async (fechaInicio, fechaFin) => {
     if (fechaInicio && fechaFin) {
       const response = await api.get('/membership-sales/date-range', {
@@ -9,7 +8,6 @@ export const reporteService = {
       });
       return response.data;
     } else {
-      // Sin filtro de fechas, obtener todas las membresías
       const response = await api.get('/membership-sales');
       return response.data;
     }
@@ -27,7 +25,6 @@ export const reporteService = {
     return response.data;
   },
 
-  // Reportes de clases personalizadas
   obtenerReporteClasesPersonalizadas: async (fechaInicio, fechaFin) => {
     if (fechaInicio && fechaFin) {
       const response = await api.get('/personalized-classes/date-range', {
